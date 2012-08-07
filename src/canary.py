@@ -17,7 +17,7 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 stream_handler.setFormatter(formatter)
 log.addHandler(stream_handler)
 
-services = ['http://10.190.94.8:8081/', 'http://10.124.147.179:8081/']
+services = ['http://10.210.154.239:8081/', 'http://10.4.67.69:8081/']
 
 requests_config = {
     'safe_mode': True,
@@ -40,18 +40,18 @@ def process_greenlets(request, greenlets):
             if resp.ok:
                 result = resp.content
             else:
-                result = resp.error
+                result = resp.content
         except Exception, e:
             result = e
         results.append((result, resp.status_code, res[1]))
     log.info("Results for request: {}, responses received: {}".format(request, results))
 
 
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
+@app.route('/', defaults={'path': ''}, methods=['GET', 'POST', 'PUT'])
+@app.route('/<path:path>', methods=['GET', 'POST', 'PUT'])
 def catch_all(path):
     method = request.method
-    headers = dict(request.headers)
+    headers = dict([(k,v) for k,v in request.headers if v != ''])
     params = dict(request.args)
     data = dict(request.form)
     greenlets = [gevent.spawn(timer, func=requests.request,
@@ -70,4 +70,4 @@ def catch_all(path):
 
 if __name__ == "__main__":
 
-    app.run(port=8080)
+    app.run(host="0.0.0.0", port=8081)
