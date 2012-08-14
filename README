@@ -1,1 +1,0 @@
-PYTHONPATH=src gunicorn -w 2 -b 0.0.0.0:8081 canary:app --log-file=access.log

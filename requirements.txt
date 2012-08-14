@@ -1,4 +1,7 @@
+# gingko
+git+https://github.com/progrium/ginkgo.git#egg=ginkgo
 gevent==1.0b3
+pytwilio.log
 flask
+gevent-socketio
 requests
-gunicorn
