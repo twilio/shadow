@@ -36,6 +36,11 @@ class ProxyService(Service):
             self.app = web.ProxyFlask(self,
                 self.true_servers, self.shadow_servers,
                 self.true_servers_timeout, self.shadow_servers_timeout,
+
+                self.true_servers_additional_headers,
+                self.true_servers_additional_post_params,
+                self.true_servers_additional_get_params,
+
                 self.shadow_servers_additional_headers,
                 self.shadow_servers_additional_post_params,
                 self.shadow_servers_additional_get_params,
