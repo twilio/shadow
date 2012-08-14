@@ -63,12 +63,12 @@ def test_proxy_service_init():
         shadow_servers,
         true_servers_timeout,
         shadow_servers_timeout,
-        true_servers_additional_headers,
-        true_servers_additional_post_params,
         true_servers_additional_get_params,
-        shadow_servers_additional_headers,
-        shadow_servers_additional_post_params,
+        true_servers_additional_post_params,
+        true_servers_additional_headers,
         shadow_servers_additional_get_params,
+        shadow_servers_additional_post_params,
+        shadow_servers_additional_headers,
         result_logger
     )
 
