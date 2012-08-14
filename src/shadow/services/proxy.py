@@ -18,6 +18,10 @@ class ProxyService(Service):
     true_servers_timeout = settings.get('proxy', {}).get('true_servers_timeout', 5.0)
     shadow_servers_timeout = settings.get('proxy', {}).get('shadow_servers_timeout', 5.0)
 
+    true_servers_additional_headers = settings.get('proxy', {}).get('true_servers_additional_headers', [])
+    true_servers_additional_post_params = settings.get('proxy', {}).get('true_servers_additional_post_params', [])
+    true_servers_additional_get_params = settings.get('proxy', {}).get('shadow_servers_additional_get_params', [])
+
     shadow_servers_additional_headers = settings.get('proxy', {}).get('shadow_servers_additional_headers', [])
     shadow_servers_additional_post_params = settings.get('proxy', {}).get('shadow_servers_additional_post_params', [])
     shadow_servers_additional_get_params = settings.get('proxy', {}).get('shadow_servers_additional_get_params', [])

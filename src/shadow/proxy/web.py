@@ -22,6 +22,11 @@ class ProxyFlask(Flask):
     def __init__(self, service,
         true_servers, shadow_servers,
         true_servers_timeout=5.0, shadow_servers_timeout=5.0,
+
+        true_servers_additional_get_params=[],
+        true_servers_additional_post_params=[],
+        true_servers_additional_headers=[],
+
         shadow_servers_additional_get_params=[],
         shadow_servers_additional_post_params=[],
         shadow_servers_additional_headers=[],
@@ -43,9 +48,15 @@ class ProxyFlask(Flask):
         self.shadow_servers = shadow_servers
         self.true_servers_timeout = true_servers_timeout
         self.shadow_servers_timeout = shadow_servers_timeout
+
+        self.true_servers_additional_headers = true_servers_additional_headers
+        self.true_servers_additional_post_params = true_servers_additional_post_params
+        self.true_servers_additional_get_params = true_servers_additional_get_params
+
         self.shadow_servers_additional_headers = shadow_servers_additional_headers
         self.shadow_servers_additional_post_params = shadow_servers_additional_post_params
         self.shadow_servers_additional_get_params = shadow_servers_additional_get_params
+
         self.result_loggers = result_loggers
         self.route('/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])(self.catch_all)
         self.route('/', defaults={'path': ''}, methods=['GET', 'POST', 'PUT', 'DELETE'])(self.catch_all)
@@ -88,9 +99,9 @@ class ProxyFlask(Flask):
         req = {
             'url': request.path,
             'method': request.method,
-            'headers': dict([(unicode(k), unicode(v)) for k, v in request.headers]),
-            'get': dict([(unicode(k), unicode(v)) for k, v in request.args]),
-            'post': dict([(unicode(k), unicode(v)) for k, v in request.form])
+            'headers': dict([(unicode(k), unicode(v)) for k, v in request.headers.items()]),
+            'get': dict([(unicode(k), unicode(v)) for k, v in request.args.items()]),
+            'post': dict([(unicode(k), unicode(v)) for k, v in request.form.items()])
         }
         return req
 
@@ -117,15 +128,15 @@ class ProxyFlask(Flask):
 
     def catch_all(self, path):
         method = request.method
-        headers = dict([(k, v) for k, v in request.headers if v != ''])
+        headers = dict([(k, v) for k, v in request.headers.items() if v != ''])
         params = dict(request.args)
         data = dict(request.form)
         true_greenlets = [self.service.spawn(self.timer, timed_func=requests.request,
                 method=method,
                 url='{server}{path}'.format(server=service, path=path),
-                headers=headers,
-                params=params,
-                data=data,
+                headers=dict(headers.items() + self.true_servers_additional_headers),
+                params=dict(params.items() + self.true_servers_additional_get_params),
+                data=dict(data.items() + self.true_servers_additional_post_params),
                 config=requests_config,
                 timeout=self.true_servers_timeout
             ) for service in self.true_servers]

@@ -222,15 +222,15 @@ def _mock_request():
 
     req.headers = {
         'header': 'header_value'
-    }.items()
+    }
 
     req.args = {
         'get': 'get_value'
-    }.items()
+    }
 
     req.form = {
         'post': 'post_value'
-    }.items()
+    }
 
     expected = {
         'url': req.path,
