@@ -12,6 +12,10 @@ proxy = {
     'shadow_servers': ['http://10.4.67.69:8081/'],
     'shadow_servers_timeout': 5.0,
 
+    'true_servers_additional_get_params': [],
+    'true_servers_additional_post_params': [],
+    'true_servers_additional_headers': [],
+
     'shadow_servers_additional_get_params': [],
     'shadow_servers_additional_post_params': [],
     'shadow_servers_additional_headers': [],

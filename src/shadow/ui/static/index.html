@@ -9,6 +9,7 @@
         <script type="text/javascript" src="http://underscorejs.org/underscore-min.js"></script>
         <script type="text/javascript" src="http://code.angularjs.org/1.0.1/angular-1.0.1.min.js"></script>
         <script type="text/javascript" src="static/js/shadow.js"></script>
+        <script type="text/javascript" src="static/js/diff.js"></script>
         <style type="text/css">
             .requests-buttons {
                 float: right;
@@ -36,6 +37,21 @@
             }
             .response-label {
                 float: right;
+            }
+            span.ins {
+                background: #76e213;
+                color: #22360c;
+                text-decoration: none;
+            }
+
+            tr.selected {
+                background: #f5f5f5;
+            }
+
+            span.del {
+                text-decoration: none;
+                color: #b30000;
+                background: #e7a7a1;
             }
         </style>
     </head>
@@ -68,7 +84,7 @@
                     <h2>Requests</h2>
 
                     <div id="scrollableTable" >
-                        <table class="table table-stripped table-condensed">
+                        <table class="table table-stripped table-condensed" style="position: relative">
                             <thead>
                                 <tr>
                                     <th>No.</th>
@@ -80,7 +96,7 @@
                                 <tr ng-show='results.length == 0'>
                                     <td colspan="3">No requests yet.</td>
                                 </tr>
-                                <tr style="cursor: pointer" ng-repeat='result in results | filter:filterResults' ng-click='setCurrentResult(result)'>
+                                <tr ng-class="{true: 'selected'}[result.index == currentResult.index]" style="cursor: pointer" ng-repeat='result in filtered = (results | filter:filterResults)' ng-click='setCurrentResult(result, $index, filtered)'>
                                     <td>{{result.index + 1}}</td>
                                     <td>{{result.request.method}} {{result.request.url}}</td>
                                     <td>
@@ -103,6 +119,8 @@
                     <div class="row">
                         <div class="span12">
                             <div style="float: right">
+                                <button class="btn" ng-click="setCurrentResult(prev.result, prev.index, prev.results)">Prev</button>
+                                <button class="btn" ng-click="setCurrentResult(next.result, next.index, next.results)">Next</button>
                                 <button class="btn btn-danger" ng-click='removeResult(currentResult.index)'>Delete</button>
                             </div>
                                 <h2>
@@ -283,7 +301,7 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>{{shadowed.body}}</td>
+                                        <td ng-bind-html-unsafe="shadowed.body_diff"></td>
                                     </tr>
                                 </tbody>
                             </table>

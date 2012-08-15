@@ -108,9 +108,9 @@ function ResultsCtrl($scope) {
     testAdd = function(){
         var num = Math.random();
         if(num < 0.3){
-            $scope.addResult({"request":{"url":"/abc2.html","headers":{"Host":"localhost:8081","Accept":"*/*","User-Agent":"curl/7.24.0 (x86_64-apple-darwin12.0) libcurl/7.24.0 OpenSSL/0.9.8r zlib/1.2.5"},"post":{},"method":"GET","get":{}},"results":[{"body":"This is not the url you are looking for","headers":{"date":"Wed, 08 Aug 2012 22:21:33 GMT","content-length":"39","content-type":"text/html; charset=utf-8"},"elapsed_time":0.014795064926147461,"type":"http_response","status_code":404},{"body":"This is not the url you are looki2ng for","headers":{"date":"Wed, 08 Aug 2012 22:21:33 GMT","content-length":"39","content-type":"text/html; charset=utf-8"},"elapsed_time":0.01584911346435547,"type":"http_response","status_code":405}]});
+            $scope.addResult({"request":{"url":"/abc2.html","headers":{"Host":"localhost:8081","Accept":"*/*","User-Agent":"curl/7.24.0 (x86_64-apple-darwin12.0) libcurl/7.24.0 OpenSSL/0.9.8r zlib/1.2.5"},"post":{},"method":"GET","get":{}},"results":[{"body":"This is not the url you are looking for","headers":{"date":"Wed, 08 Aug 2012 22:21:33 GMT","content-length":"39","content-type":"text/html; charset=utf-8"},"elapsed_time":0.014795064926147461,"type":"http_response","status_code":404},{"body":"This is not the url are looked for","headers":{"date":"Wed, 08 Aug 2012 22:21:33 GMT","content-length":"39","content-type":"text/html; charset=utf-8"},"elapsed_time":0.01584911346435547,"type":"http_response","status_code":405}]});
         }else if(num < 0.7){
-            $scope.addResult({"request":{"url":"/abc2.html","headers":{"Host":"localhost:8081","Accept":"*/*","User-Agent":"curl/7.24.0 (x86_64-apple-darwin12.0) libcurl/7.24.0 OpenSSL/0.9.8r zlib/1.2.5"},"post":{},"method":"GET","get":{}},"results":[{"body":"This is not the url you are looking for","headers":{"date":"Wed, 08 Aug 2012 22:21:33 GMT","content-length":"39","content-type":"text/html; charset=utf-8"},"elapsed_time":0.014795064926147461,"type":"http_response","status_code":404},{"body":"This is not the url you are looki2ng for","headers":{"date":"Wed, 08 Aug 2012 22:21:33 GMT","content-length":"39","content-type":"text/html; charset=utf-8"},"elapsed_time":0.01584911346435547,"type":"http_response","status_code":404}]});
+            $scope.addResult({"request":{"url":"/abc2.html","headers":{"Host":"localhost:8081","Accept":"*/*","User-Agent":"curl/7.24.0 (x86_64-apple-darwin12.0) libcurl/7.24.0 OpenSSL/0.9.8r zlib/1.2.5"},"post":{},"method":"GET","get":{}},"results":[{"body":"This is not the url you are looking for","headers":{"date":"Wed, 08 Aug 2012 22:21:33 GMT","content-length":"39","content-type":"text/html; charset=utf-8"},"elapsed_time":0.014795064926147461,"type":"http_response","status_code":404},{"body":"This is not the url are looked for","headers":{"date":"Wed, 08 Aug 2012 22:21:33 GMT","content-length":"39","content-type":"text/html; charset=utf-8"},"elapsed_time":0.01584911346435547,"type":"http_response","status_code":404}]});
         }else{
             $scope.addResult({"request":{"url":"/abc2.html","headers":{"Host":"localhost:8081","Accept":"*/*","User-Agent":"curl/7.24.0 (x86_64-apple-darwin12.0) libcurl/7.24.0 OpenSSL/0.9.8r zlib/1.2.5"},"post":{},"method":"GET","get":{}},"results":[{"body":"This is not the url you are looking for","headers":{"date":"Wed, 08 Aug 2012 22:21:33 GMT","content-length":"39","content-type":"text/html; charset=utf-8"},"elapsed_time":0.014795064926147461,"type":"http_response","status_code":404},{"body":"This is not the url you are looking for","headers":{"date":"Wed, 08 Aug 2012 22:21:33 GMT","content-length":"39","content-type":"text/html; charset=utf-8"},"elapsed_time":0.01584911346435547,"type":"http_response","status_code":404}]});
         }
@@ -143,7 +143,40 @@ function ResultsCtrl($scope) {
         $scope.setCurrentResult($scope.results[index]);
     };
 
-    $scope.setCurrentResult = function(result){
+    $scope.setCurrentResult = function(result, index, results){
+        $scope.followState = false;
+
+        var table = angular.element("#scrollableTable");
+        var row = angular.element("#scrollableTable tbody tr").eq(index+1);
+        
+        table.scrollTop(row.position().top);
+
+        var bodies = _.pluck(result.results, 'body');
+        var diff = JsDiff.diffChars(bodies[0], bodies[1]);
+
+        $scope.prev = {
+            result: results[Math.max(0, index - 1)],
+            index: Math.max(0, index - 1),
+            results: results
+        };
+
+        $scope.next = {
+            result: results[Math.min(index + 1, results.length)],
+            index: Math.min(index + 1, results.length),
+            results: results
+        };
+
+        if(result.results[1].body_diff === undefined){
+            result.results[1].body_diff=_.map(diff, function(x){
+                if(x.added === true){
+                    return $("<span>").addClass("ins").text(x.value)[0].outerHTML;
+                }else if(x.removed === true){
+                    return $("<span>").addClass("del").text(x.value)[0].outerHTML;
+                }else{
+                    return $("<span>").text(x.value)[0].outerHTML;
+                }
+            }).join("");
+        }
         $scope.currentResult = result;
     };
     
