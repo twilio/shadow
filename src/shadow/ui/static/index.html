@@ -90,6 +90,7 @@
                                     <th>No.</th>
                                     <th>Incoming Request</th>
                                     <th></th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -98,7 +99,20 @@
                                 </tr>
                                 <tr ng-class="{true: 'selected'}[result.index == currentResult.index]" style="cursor: pointer" ng-repeat='result in filtered = (results | filter:filterResults)' ng-click='setCurrentResult(result, $index, filtered)'>
                                     <td>{{result.index + 1}}</td>
-                                    <td>{{result.request.method}} {{result.request.url}}</td>
+                                    <td>
+                                        <span>
+                                            {{result.request.method}} {{result.request.url}}
+                                        </span>
+                                        <span class="label label-info" style="margin-left: 5px" ng-show="result.results[0].status_code > 300">
+                                            {{result.results[0].status_code}}
+                                        </span>
+                                        <span class="label label-inverse" style="margin-left: 5px" ng-show="result.results[1].status_code > 300">
+                                            {{result.results[1].status_code}}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        
+                                    </td>
                                     <td>
                                         <span class="label label-important" ng-show='result["status_code_diff"]'>Status Code Diff</span>
                                         <span class="label label-warning" ng-show='result["body_diff"]'>Body Diff</span>
