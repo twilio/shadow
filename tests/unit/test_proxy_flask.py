@@ -308,12 +308,19 @@ def test_catch_all_default():
     additional_get = [('add_get', 'get_value')]
     additional_post = [('add_post', 'post_value')]
 
+    additional_true_headers = [('add_true_header', 'true_header_value'), ('true_header', 'altered_true_header_value')]
+    additional_true_get = [('add_true_get', 'get_true_value')]
+    additional_true_post = [('add_true_post', 'post_true_value')]
+
     app = ProxyFlask(
         svc,
         ['true_server'],
         ['shadow_server'],
         shadow_servers_timeout=1337.0,
         true_servers_timeout=1339.0,
+        true_servers_additional_headers=additional_true_headers,
+        true_servers_additional_get_params=additional_true_get,
+        true_servers_additional_post_params=additional_true_post,
         shadow_servers_additional_headers=additional_headers,
         shadow_servers_additional_get_params=additional_get,
         shadow_servers_additional_post_params=additional_post,
@@ -329,9 +336,9 @@ def test_catch_all_default():
 
     requests.request.assert_has_calls([call(
         url="true_server/",
-        headers=expected_req['headers'],
-        data=expected_req['post'],
-        params=expected_req['get'],
+        headers=dict(expected_req['headers'].items() + additional_true_headers),
+        data=dict(expected_req['post'].items() + additional_true_post),
+        params=dict(expected_req['get'].items() + additional_true_get),
         timeout=1339.0,
         method=expected_req['method'],
         config=shadow.proxy.web.config
