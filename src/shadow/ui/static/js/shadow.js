@@ -23,6 +23,17 @@ function ResultsCtrl($scope) {
         }
     };
 
+    $scope.showDiffBtn = {
+        true: {
+            label: 'Hide Diff',
+            clazz: 'btn-inverse'
+        },
+        false: {
+            label: 'Show Diff',
+            clazz: ''
+        }
+    };
+
     $scope.followBtn = {
         true: {
             label: 'Un-Follow',
@@ -167,7 +178,8 @@ function ResultsCtrl($scope) {
         };
 
         if(result.results[1].body_diff === undefined){
-            result.results[1].body_diff=_.map(diff, function(x){
+            
+            var diffs =_.map(diff, function(x){
                 if(x.added === true){
                     return $("<span>").addClass("ins").text(x.value)[0].outerHTML;
                 }else if(x.removed === true){
@@ -175,7 +187,15 @@ function ResultsCtrl($scope) {
                 }else{
                     return $("<span>").text(x.value)[0].outerHTML;
                 }
-            }).join("");
+            });
+
+            result.results[1].body_diff = diffs.join("");
+
+            if(diffs.length > 8){
+                result.results[1].show_diff = false;
+            }else{
+                result.results[1].show_diff = true;
+            }
         }
         $scope.currentResult = result;
     };

@@ -254,7 +254,7 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>{{orig.body}}</td>
+                                        <td style="word-wrap: break-word;">{{orig.body}}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -309,13 +309,21 @@
                                             <span class="label label-warning response-label" ng-show='currentResult.body_diff'>
                                                 Body Diff
                                             </span>
+                                            <button class="btn btn-mini response-label" style="margin-top:-1px; margin-right:2px" ng-class="showDiffBtn[shadowed.show_diff].clazz"
+                                            ng-click="shadowed.show_diff = !shadowed.show_diff"
+                                            ng-show='currentResult.body_diff'>
+                                                {{showDiffBtn[shadowed.show_diff].label}}
+                                            </button>
                                         </th>
 
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td ng-bind-html-unsafe="shadowed.body_diff"></td>
+                                        <td style="word-wrap: break-word;">
+                                            <span ng-show='!shadowed.show_diff' ng-bind="shadowed.body"></span>
+                                            <span ng-show='shadowed.show_diff' ng-bind-html-unsafe="shadowed.body_diff"></span>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
