@@ -128,7 +128,7 @@ class ProxyFlask(Flask):
 
     def catch_all(self, path):
         method = request.method
-        headers = dict([(k, v) for k, v in request.headers.items() if v != ''])
+        headers = dict([(k, v) for k, v in request.headers.items() if v not in ('Content-Length', '')])
         params = dict(request.args)
         data = dict(request.form)
         true_greenlets = [self.service.spawn(self.timer, timed_func=requests.request,
