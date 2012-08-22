@@ -1,6 +1,6 @@
 # gingko
-git+https://github.com/progrium/ginkgo.git#egg=ginkgo
 gevent==1.0b3
+ginkgo==rc2
 pytwilio.log
 flask
 gevent-socketio
