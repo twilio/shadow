@@ -1,6 +1,6 @@
 # gingko
 gevent==1.0b3
-ginkgo==rc2
+ginkgo==twilio-rc2
 pytwilio.log
 flask
 gevent-socketio
