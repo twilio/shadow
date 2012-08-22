@@ -3,5 +3,6 @@ gevent==1.0b3
 ginkgo==twilio-rc2
 pytwilio.log
 flask
-gevent-socketio
+#gevent-socketio
+gevent-socketio-0.3.5
 requests
