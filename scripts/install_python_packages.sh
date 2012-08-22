@@ -39,7 +39,7 @@ if [[ "$context" != testing ]]; then
 fi
 
 #easy_install -i http://localhost:8302/simple/ gevent==1.0b3
-pip install -i http://localhost:8302/simple/ -r $dir/requirements
+pip install -i http://localhost:8302/simple/ -r $dir/requirements.txt
 
 # pip install -i http://localhost:8302/simple/ -r $dir/requirements.txt
 #pip install -r $dir/requirements.txt
