@@ -22,5 +22,6 @@ setup(name='shadow',
 
         # internal dependencies
         'pytwilio.log==0.1',
+	'pytwilio.shared==0.1',
       ]
       )
