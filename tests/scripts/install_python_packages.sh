@@ -14,7 +14,7 @@
 
 set -e
 
-dir=$(cd $(dirname $0)/../; pwd)
+dir=$(cd $(dirname $0)/../../; pwd)
 context=$1
 
 ################ INSTALL DEPENDENCIES VIA EASYSTREET ###############
@@ -38,54 +38,14 @@ if [[ "$context" != testing ]]; then
     sleep 2 # hackery to wait until the pypi-server's actually started
 fi
 
-pip install -i http://localhost:8302/simple/ .
+pip install -i http://localhost:8302/simple/ $dir
 
 if [[ "$context" == testing ]]; then
     pip install -r $dir/tests/requirements.txt
 fi
 
-pip install $dir
-
 if [[ "$context" != testing ]]; then
     /usr/local/src/easystreet/scripts/pypi-server stop
 fi
 
-# NB: gevent_zeromq==0.2.3 breaks the bridge integration tests.
-# Not a good sign.
-# Do not upgrade until further investigation.
-# # easy_install -i http://localhost:8302/simple/ gevent_zeromq==0.2.3
 
-
-# ############## INSTALL DEPENDENCIES FROM OUR .externals ############
-
-# if [[ "$context" == testing ]]; then
-#     PACKAGES=$VIRTUAL_ENV/packages
-#     mkdir -p $PACKAGES
-#     # ginkgo, from twilio's master branch
-#     (cd $PACKAGES &&
-#         git clone git://code.corp.twilio.com/twilio/ginkgo &&
-#         easy_install --allow-hosts=None -Z ./ginkgo
-#         )
-
-#     # pytwilio.shared
-#     # This is already installed on unit by default, but we will install
-#     # it here so that we can use eventually use --no-site-packages
-#     # virtualenv. (Depends on using the bdist_egg of gevent & greenlet
-#     # as provided by easystreet.)
-#     pip install --no-deps -I -e git+git://code.corp.twilio.com/twilio/pytwilio.shared.git#egg=pytwilio.shared
-
-#     # pytwilio.boxconfig for the agent's collector-discovery service.
-#     # overwrite any previous installs / pytwilio.egg stuff confusing the virtualenv
-#     pip install --no-deps -I -e git+git://code.corp.twilio.com/twilio/pytwilio.boxconfig.git#egg=pytwilio.boxconfig
-# else
-#     for package in ginkgo pytwilio/shared pytwilio/boxconfig; do
-#         pushd /usr/local/src/$package
-#         python setup.py clean
-#         easy_install --allow-hosts=None -Z ./
-#         popd
-#     done
-# fi
-
-# ############################ INSTALL METRICS ###########################
-
-# # easy_install --allow-hosts=None -Z $dir
