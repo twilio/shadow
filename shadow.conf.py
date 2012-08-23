@@ -22,8 +22,8 @@ proxy = {
 }
 
 # Daemon params
-#chroot = "/var/shadow"
-#user = "nobody"
+chroot = "/mnt/services/shadow/chroot"
+user = "nobody"
 #logfile = "/var/log/twilio/shadow-gservice.log"
 #pidfile = "/var/run/shadow.pid"
 
