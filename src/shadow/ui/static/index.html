@@ -101,7 +101,7 @@
                                     <td>{{result.index + 1}}</td>
                                     <td>
                                         <span>
-                                            {{result.request.method}} {{result.request.url}}
+                                            {{result.request.original.method}} {{result.request.original.url}}
                                         </span>
                                         <span class="label label-info" style="margin-left: 5px" ng-show="result.results[0].status_code > 300">
                                             {{result.results[0].status_code}}
@@ -151,7 +151,7 @@
                                             </thead>
                                             <tbody>
                                                 <tr>
-                                                    <td>{{currentResult.request.url}}</td>
+                                                    <td>{{currentResult.request.original.url}}</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -162,7 +162,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr ng-repeat='(key, value) in currentResult.request.headers'>
+                                                <tr ng-repeat='(key, value) in currentResult.request.original.headers'>
                                                     <td>{{key}}</td>
                                                     <td>{{value}}</td>
                                                 </tr>
@@ -177,7 +177,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr ng-repeat='(key, value) in currentResult.request.get'>
+                                                <tr ng-repeat='(key, value) in currentResult.request.original.get'>
                                                     <td>{{key}}</td>
                                                     <td>{{value}}</td>
                                                 </tr>
@@ -190,7 +190,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr ng-repeat='(key, value) in currentResult.request.post'>
+                                                <tr ng-repeat='(key, value) in currentResult.request.original.post'>
                                                     <td>{{key}}</td>
                                                     <td>{{value}}</td>
                                                 </tr>
