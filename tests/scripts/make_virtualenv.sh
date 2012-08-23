@@ -23,4 +23,4 @@ test ! -e $target || rm -rf $target
 
 ######################## INSTALL PYTHON PACKAGES #######################
 
-$dir/scripts/install_python_packages.sh $context
+$dir/tests/scripts/install_python_packages.sh $context
