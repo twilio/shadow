@@ -95,13 +95,22 @@ class ProxyFlask(Flask):
             }
         return resp
 
-    def format_request(self, request):
+    def format_request(self, url, method, headers, params, data, request):
         req = {
-            'url': request.path,
-            'method': request.method,
-            'headers': dict([(unicode(k), unicode(v)) for k, v in request.headers.items()]),
-            'get': dict([(unicode(k), unicode(v)) for k, v in request.args.items()]),
-            'post': dict([(unicode(k), unicode(v)) for k, v in request.form.items()])
+            'original': {
+                'url': request.path,
+                'method': request.method,
+                'headers': dict([(unicode(k), unicode(v)) for k, v in request.headers.items()]),
+                'get': dict([(unicode(k), unicode(v)) for k, v in request.args.items()]),
+                'post': dict([(unicode(k), unicode(v)) for k, v in request.form.items()])
+            },
+            'modified': {
+                'url': url,
+                'method': method,
+                'headers': headers,
+                'get': params,
+                'post': data
+            }
         }
         return req
 
@@ -128,9 +137,11 @@ class ProxyFlask(Flask):
 
     def catch_all(self, path):
         method = request.method
-        headers = dict([(k, v) for k, v in request.headers.items() if v not in ('Content-Length', '')])
+        headers = dict([(k, v) for k, v in request.headers.items() if k not in ('Content-Length')])
         params = dict(request.args)
         data = dict(request.form)
+        url = request.path
+
         true_greenlets = [self.service.spawn(self.timer, timed_func=requests.request,
                 method=method,
                 url='{server}{path}'.format(server=service, path=path),
@@ -153,7 +164,7 @@ class ProxyFlask(Flask):
 
         greenlets = true_greenlets + shadow_greenlets
 
-        self.service.spawn(self.process_greenlets, self.format_request(request), greenlets)
+        self.service.spawn(self.process_greenlets, self.format_request(url, method, headers, params, data, request), greenlets)
 
         try:
             first_response = true_greenlets[0].get(block=True)[0]

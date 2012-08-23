@@ -185,7 +185,7 @@ def test_format_request():
 
     req, expected = _mock_request()
 
-    eq_(app.format_request(req), expected)
+    eq_(app.format_request(req.path, req.method, req.headers, req.args, req.form, req), {'original': expected, 'modified': expected})
 
 
 def test_timer_normal():
@@ -268,15 +268,112 @@ def test_process_greenlets():
 
     greenlets = [gevent.spawn(ident, x) for x in [(resp, elapsed_time), (resp2, elapsed_time2)]]
 
-    app.process_greenlets(app.format_request(req), greenlets)
+    app.process_greenlets(app.format_request(req.path, req.method, req.headers, req.args, req.form, req), greenlets)
 
     mock_result_logger.log_result.assert_called_with({
-            'request': expected_req,
+            'request': {
+                'original': expected_req,
+                'modified': expected_req
+            },
             'results': [
                 expected_resp,
                 expected_resp2
             ]
         })
+
+
+def test_no_content_length():
+    from shadow.proxy.web import ProxyFlask
+    from shadow.proxy.web import AbstractResultsLogger
+    import shadow.proxy.web
+    import gevent
+
+    shadow.proxy.web.config = {
+        'safe_mode': True
+    }
+
+    svc = gevent
+
+    requests = shadow.proxy.web.requests
+    requests.request = mock.Mock()
+
+    resp, expected_resp, elapsed_time = _mock_response()
+
+    req, expected_req = _mock_request()
+
+    req.headers = {'header': 'header_value', 'Content-Length': '231'}
+
+    shadow.proxy.web.request = req
+
+    requests.request.return_value = resp
+
+    mock_result_logger = mock.Mock(spec=AbstractResultsLogger)
+
+    additional_headers = [('add_header', 'header_value'), ('header', 'altered_header_value')]
+    additional_get = [('add_get', 'get_value')]
+    additional_post = [('add_post', 'post_value')]
+
+    additional_true_headers = [('add_true_header', 'true_header_value'), ('true_header', 'altered_true_header_value')]
+    additional_true_get = [('add_true_get', 'get_true_value')]
+    additional_true_post = [('add_true_post', 'post_true_value')]
+
+    app = ProxyFlask(
+        svc,
+        ['true_server'],
+        ['shadow_server'],
+        shadow_servers_timeout=1337.0,
+        true_servers_timeout=1339.0,
+        true_servers_additional_headers=additional_true_headers,
+        true_servers_additional_get_params=additional_true_get,
+        true_servers_additional_post_params=additional_true_post,
+        shadow_servers_additional_headers=additional_headers,
+        shadow_servers_additional_get_params=additional_get,
+        shadow_servers_additional_post_params=additional_post,
+        result_loggers=[mock_result_logger]
+    )
+
+    path = "/"
+
+    # mock timer to return the randomly generated time
+    app.timer = lambda timed_func, *args, **kwargs: (timed_func(*args, **kwargs), elapsed_time)
+
+    app.catch_all(path)
+
+    requests.request.assert_has_calls([call(
+        url="true_server/",
+        headers=dict(expected_req['headers'].items() + additional_true_headers),
+        data=dict(expected_req['post'].items() + additional_true_post),
+        params=dict(expected_req['get'].items() + additional_true_get),
+        timeout=1339.0,
+        method=expected_req['method'],
+        config=shadow.proxy.web.config
+    ), call(
+        url="shadow_server/",
+        headers=dict(expected_req['headers'].items() + additional_headers),
+        data=dict(expected_req['post'].items() + additional_post),
+        params=dict(expected_req['get'].items() + additional_get),
+        timeout=1337.0,
+        method=expected_req['method'],
+        config=shadow.proxy.web.config
+    )], any_order=True)
+
+    mock_result_logger.log_result.assert_called_with({
+            'request': {
+                'modified': expected_req,
+                'original': {
+                    'url': req.path,
+                    'method': req.method,
+                    'headers': dict([(unicode(k), unicode(v)) for k, v in req.headers.items()]),
+                    'get': dict([(unicode(k), unicode(v)) for k, v in req.args.items()]),
+                    'post': dict([(unicode(k), unicode(v)) for k, v in req.form.items()])
+                }
+            },
+            'results': [
+                expected_resp,
+                expected_resp
+            ]
+        })
+
 
 
 def test_catch_all_default():
@@ -353,7 +450,16 @@ def test_catch_all_default():
     )], any_order=True)
 
     mock_result_logger.log_result.assert_called_with({
-            'request': expected_req,
+            'request': {
+                'modified': expected_req,
+                'original': {
+                    'url': req.path,
+                    'method': req.method,
+                    'headers': dict([(unicode(k), unicode(v)) for k, v in req.headers.items()]),
+                    'get': dict([(unicode(k), unicode(v)) for k, v in req.args.items()]),
+                    'post': dict([(unicode(k), unicode(v)) for k, v in req.form.items()])
+                }
+            },
             'results': [
                 expected_resp,
                 expected_resp
