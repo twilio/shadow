@@ -294,18 +294,12 @@ def test_no_content_length():
 
     svc = gevent
 
-    requests = shadow.proxy.web.requests
-    requests.request = mock.Mock()
-
-    resp, expected_resp, elapsed_time = _mock_response()
 
     req, expected_req = _mock_request()
 
     req.headers = {'header': 'header_value', 'Content-Length': '231'}
 
     shadow.proxy.web.request = req
-
-    requests.request.return_value = resp
 
     mock_result_logger = mock.Mock(spec=AbstractResultsLogger)
 
@@ -332,47 +326,55 @@ def test_no_content_length():
         result_loggers=[mock_result_logger]
     )
 
-    path = "/"
+    with mock.patch.object(app, 'session') as requests:
 
-    # mock timer to return the randomly generated time
-    app.timer = lambda timed_func, *args, **kwargs: (timed_func(*args, **kwargs), elapsed_time)
+        requests.request = mock.Mock()
 
-    app.catch_all(path)
+        resp, expected_resp, elapsed_time = _mock_response()
 
-    requests.request.assert_has_calls([call(
-        url="true_server/",
-        headers=dict(expected_req['headers'].items() + additional_true_headers),
-        data=dict(expected_req['post'].items() + additional_true_post),
-        params=dict(expected_req['get'].items() + additional_true_get),
-        timeout=1339.0,
-        method=expected_req['method'],
-        config=shadow.proxy.web.config
-    ), call(
-        url="shadow_server/",
-        headers=dict(expected_req['headers'].items() + additional_headers),
-        data=dict(expected_req['post'].items() + additional_post),
-        params=dict(expected_req['get'].items() + additional_get),
-        timeout=1337.0,
-        method=expected_req['method'],
-        config=shadow.proxy.web.config
-    )], any_order=True)
+        requests.request.return_value = resp
 
-    mock_result_logger.log_result.assert_called_with({
-            'request': {
-                'modified': expected_req,
-                'original': {
-                    'url': req.path,
-                    'method': req.method,
-                    'headers': dict([(unicode(k), unicode(v)) for k, v in req.headers.items()]),
-                    'get': dict([(unicode(k), unicode(v)) for k, v in req.args.items()]),
-                    'post': dict([(unicode(k), unicode(v)) for k, v in req.form.items()])
-                }
-            },
-            'results': [
-                expected_resp,
-                expected_resp
-            ]
-        })
+        path = "/"
+
+        # mock timer to return the randomly generated time
+        app.timer = lambda timed_func, *args, **kwargs: (timed_func(*args, **kwargs), elapsed_time)
+
+        app.catch_all(path)
+
+        requests.request.assert_has_calls([call(
+            url="true_server/",
+            headers=dict(expected_req['headers'].items() + additional_true_headers),
+            data=dict(expected_req['post'].items() + additional_true_post),
+            params=dict(expected_req['get'].items() + additional_true_get),
+            timeout=1339.0,
+            method=expected_req['method'],
+            config=shadow.proxy.web.config
+        ), call(
+            url="shadow_server/",
+            headers=dict(expected_req['headers'].items() + additional_headers),
+            data=dict(expected_req['post'].items() + additional_post),
+            params=dict(expected_req['get'].items() + additional_get),
+            timeout=1337.0,
+            method=expected_req['method'],
+            config=shadow.proxy.web.config
+        )], any_order=True)
+
+        mock_result_logger.log_result.assert_called_with({
+                'request': {
+                    'modified': expected_req,
+                    'original': {
+                        'url': req.path,
+                        'method': req.method,
+                        'headers': dict([(unicode(k), unicode(v)) for k, v in req.headers.items()]),
+                        'get': dict([(unicode(k), unicode(v)) for k, v in req.args.items()]),
+                        'post': dict([(unicode(k), unicode(v)) for k, v in req.form.items()])
+                    }
+                },
+                'results': [
+                    expected_resp,
+                    expected_resp
+                ]
+            })
 
 
 
@@ -388,16 +390,9 @@ def test_catch_all_default():
 
     svc = gevent
 
-    requests = shadow.proxy.web.requests
-    requests.request = mock.Mock()
-
-    resp, expected_resp, elapsed_time = _mock_response()
-
     req, expected_req = _mock_request()
 
     shadow.proxy.web.request = req
-
-    requests.request.return_value = resp
 
     mock_result_logger = mock.Mock(spec=AbstractResultsLogger)
 
@@ -424,44 +419,52 @@ def test_catch_all_default():
         result_loggers=[mock_result_logger]
     )
 
-    path = "/"
+    with mock.patch.object(app, 'session') as requests:
 
-    # mock timer to return the randomly generated time
-    app.timer = lambda timed_func, *args, **kwargs: (timed_func(*args, **kwargs), elapsed_time)
+        requests.request = mock.Mock()
 
-    app.catch_all(path)
+        resp, expected_resp, elapsed_time = _mock_response()
 
-    requests.request.assert_has_calls([call(
-        url="true_server/",
-        headers=dict(expected_req['headers'].items() + additional_true_headers),
-        data=dict(expected_req['post'].items() + additional_true_post),
-        params=dict(expected_req['get'].items() + additional_true_get),
-        timeout=1339.0,
-        method=expected_req['method'],
-        config=shadow.proxy.web.config
-    ), call(
-        url="shadow_server/",
-        headers=dict(expected_req['headers'].items() + additional_headers),
-        data=dict(expected_req['post'].items() + additional_post),
-        params=dict(expected_req['get'].items() + additional_get),
-        timeout=1337.0,
-        method=expected_req['method'],
-        config=shadow.proxy.web.config
-    )], any_order=True)
+        requests.request.return_value = resp
 
-    mock_result_logger.log_result.assert_called_with({
-            'request': {
-                'modified': expected_req,
-                'original': {
-                    'url': req.path,
-                    'method': req.method,
-                    'headers': dict([(unicode(k), unicode(v)) for k, v in req.headers.items()]),
-                    'get': dict([(unicode(k), unicode(v)) for k, v in req.args.items()]),
-                    'post': dict([(unicode(k), unicode(v)) for k, v in req.form.items()])
-                }
-            },
-            'results': [
-                expected_resp,
-                expected_resp
-            ]
-        })
+        path = "/"
+
+        # mock timer to return the randomly generated time
+        app.timer = lambda timed_func, *args, **kwargs: (timed_func(*args, **kwargs), elapsed_time)
+
+        app.catch_all(path)
+
+        requests.request.assert_has_calls([call(
+            url="true_server/",
+            headers=dict(expected_req['headers'].items() + additional_true_headers),
+            data=dict(expected_req['post'].items() + additional_true_post),
+            params=dict(expected_req['get'].items() + additional_true_get),
+            timeout=1339.0,
+            method=expected_req['method'],
+            config=shadow.proxy.web.config
+        ), call(
+            url="shadow_server/",
+            headers=dict(expected_req['headers'].items() + additional_headers),
+            data=dict(expected_req['post'].items() + additional_post),
+            params=dict(expected_req['get'].items() + additional_get),
+            timeout=1337.0,
+            method=expected_req['method'],
+            config=shadow.proxy.web.config
+        )], any_order=True)
+
+        mock_result_logger.log_result.assert_called_with({
+                'request': {
+                    'modified': expected_req,
+                    'original': {
+                        'url': req.path,
+                        'method': req.method,
+                        'headers': dict([(unicode(k), unicode(v)) for k, v in req.headers.items()]),
+                        'get': dict([(unicode(k), unicode(v)) for k, v in req.args.items()]),
+                        'post': dict([(unicode(k), unicode(v)) for k, v in req.form.items()])
+                    }
+                },
+                'results': [
+                    expected_resp,
+                    expected_resp
+                ]
+            })

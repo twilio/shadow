@@ -62,6 +62,12 @@ class ProxyFlask(Flask):
         self.route('/', defaults={'path': ''}, methods=['GET', 'POST', 'PUT', 'DELETE'])(self.catch_all)
         self.service = service
 
+        self.session = requests.session(config={
+                'pool_connections': 20,
+                'pool_maxsize': 20,
+                'keep_alive': True,
+            })
+
     def log_result(self, result):
         logger.debug('Logging results: {}'.format(result))
         for results_log in self.result_loggers:
@@ -142,7 +148,7 @@ class ProxyFlask(Flask):
         data = dict(request.form)
         url = request.path
 
-        true_greenlets = [self.service.spawn(self.timer, timed_func=requests.request,
+        true_greenlets = [self.service.spawn(self.timer, timed_func=self.session.request,
                 method=method,
                 url='{server}{path}'.format(server=service, path=path),
                 headers=dict(headers.items() + self.true_servers_additional_headers),
@@ -152,7 +158,7 @@ class ProxyFlask(Flask):
                 timeout=self.true_servers_timeout
             ) for service in self.true_servers]
 
-        shadow_greenlets = [self.service.spawn(self.timer, timed_func=requests.request,
+        shadow_greenlets = [self.service.spawn(self.timer, timed_func=self.session.request,
                 method=method,
                 url='{server}{path}'.format(server=service, path=path),
                 headers=dict(headers.items() + self.shadow_servers_additional_headers),
