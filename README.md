@@ -9,7 +9,7 @@ Shadowing deployments allows users to assert expected behaviors on the new codeb
 
 Shadow comes with a UI that allows users to monitor the stream of requests live.
 
-All request and responses are also logged in as a JSON for easy parsing and analysis. 
+All request and responses are also logged in as a JSON (Default: log/shadow-results.log) for easy parsing and analysis.
 
 For more information, check out our blog post on Shadow. 
 
