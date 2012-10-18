@@ -5,4 +5,4 @@ python:
 # command to install dependencies
 install: "pip install . --use-mirrors"
 # command to run tests
-script: "nosetests tests"
+script: "nosetests tests/unit/"
