@@ -28,7 +28,7 @@ class ProxyService(Service):
     new_servers_additional_get_params = settings.get('proxy', {}).get('new_servers_additional_get_params', [])
 
     def do_start(self):
-        logger.info("Starting ProxyService on {}:{}".format(self.address, self.port))
+        logger.info("Starting ProxyService on {address!r}:{port!r}".format(address=self.address, port=self.port))
 
     def do_stop(self):
         logger.info("Stopping ProxyService")

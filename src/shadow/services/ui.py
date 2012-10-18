@@ -17,7 +17,7 @@ class UIService(Service):
     port = settings.get('ui', {}).get('port', 9000)
 
     def broadcast_message(self, event, args, ns_name=''):
-        logger.debug("Broadcasting Event: {} Data: {}".format(event, args))
+        logger.debug("Broadcasting Event: {event!r} Data: {args!r}".format(event=event, args=args))
         try:
             socket_server = self.server
         except Exception:
@@ -30,7 +30,7 @@ class UIService(Service):
             socket.send_packet(pkt)
 
     def do_start(self):
-        logger.info("Starting UIService on {}:{}".format(self.address, self.port))
+        logger.info("Starting UIService on {address!r}:{port!r}".format(address=self.address, port=self.port))
 
     def do_stop(self):
         logger.info("Stopping UIService")
