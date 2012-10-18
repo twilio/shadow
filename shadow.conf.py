@@ -57,17 +57,17 @@ logconfig = {
             'ui': {
                 'class': 'logging.FileHandler',
                 'formatter': 'default',
-                "filename": os.path.join(file_prefix, "{}-ui.log".format(program_name))
+                "filename": os.path.join(file_prefix, "{program_name!r}-ui.log".format(program_name=program_name))
             },
             'proxy': {
                 'class': 'logging.FileHandler',
                 'formatter': 'default',
-                "filename": os.path.join(file_prefix, "{}-proxy.log".format(program_name))
+                "filename": os.path.join(file_prefix, "{program_name!r}-proxy.log".format(program_name=program_name))
             },
             'results': {
                 'class': 'logging.FileHandler',
                 'formatter': 'default_pywsgi_access_fix',
-                "filename": os.path.join(file_prefix, "{}-results.log".format(program_name))
+                "filename": os.path.join(file_prefix, "{program_name!r}-results.log".format(program_name=program_name))
             }
         },
         'loggers': {

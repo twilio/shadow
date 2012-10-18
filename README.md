@@ -11,7 +11,7 @@ Shadow comes with a UI that allows users to monitor the stream of requests live.
 
 All request and responses are also logged in as a JSON (Default: log/shadow-results.log) for easy parsing and analysis.
 
-For more information, check out our blog post on Shadow. 
+For more information, check out our blog post on Shadow in the coming week. 
 
 ## Installing
 
@@ -89,6 +89,9 @@ Be default, the UI can be accessed at [http://localhost:9000](http://localhost:9
 Tests are in the `tests` directory.  Run them using nose
 
     nosetests tests/
+
+##Build Status
+[![Build Status](https://secure.travis-ci.org/twilio/shadow.png)](http://travis-ci.org/twilio/shadow)
 
 
 ## Based upon

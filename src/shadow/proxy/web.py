@@ -36,13 +36,13 @@ class ProxyFlask(Flask):
         super(ProxyFlask, self).__init__(__name__)
 
         if len(old_servers) == 0:
-            raise ProxyConfigError("At least 1 old server must be specified, old servers: {}". format(old_servers))
+            raise ProxyConfigError("At least 1 old server must be specified, old servers: {old_servers!r}". format(old_servers=old_servers))
 
         if len(new_servers) == 0:
-            raise ProxyConfigError("At least 1 new server mush be specified, new server: {}".format(new_servers))
+            raise ProxyConfigError("At least 1 new server mush be specified, new server: {new_servers!r}".format(new_servers=new_servers))
 
         if not all([isinstance(x, AbstractResultsLogger) for x in result_loggers]):
-            raise ProxyConfigError("result_loggers must all be sub-classes of AbstractResultsLogger: {}".format(result_loggers))
+            raise ProxyConfigError("result_loggers must all be sub-classes of AbstractResultsLogger: {result_loggers!r}".format(result_loggers=result_loggers))
 
         self.old_servers = old_servers
         self.new_servers = new_servers
@@ -69,12 +69,12 @@ class ProxyFlask(Flask):
             })
 
     def log_result(self, result):
-        logger.debug('Logging results: {}'.format(result))
+        logger.debug('Logging results: {result!r}'.format(result=result))
         for results_log in self.result_loggers:
             try:
                 results_log.log_result(result)
             except Exception:
-                logger.exception("Results Logger: {} encountered exception logging result: {}".format(results_log, result))
+                logger.exception("Results Logger: {results_log!r} encountered exception logging result: {result!r}".format(results_log=results_log, result=result))
 
     def format_response(self, response, elapsed_time=None):
         resp = None
@@ -138,7 +138,7 @@ class ProxyFlask(Flask):
             logger.exception("Exception encountered in time step")
             result = e
         elapsed = time.time() - start
-        logger.info("Timed request [{}] with args {}, {}".format(elapsed, args, kwargs))
+        logger.info("Timed request [{elapsed!r}] with args {args!r}, {kwargs!r}".format(elapsed=elapsed, args=args, kwargs=kwargs))
         return (result, elapsed)
 
     def catch_all(self, path):
