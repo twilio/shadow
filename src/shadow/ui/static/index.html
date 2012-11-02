@@ -259,7 +259,8 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td style="word-wrap: break-word;">{{orig.body}}</td>
+                                        <!-- <td style="word-wrap: break-word;">{{orig.body}}</td> -->
+                                        <td style="white-space: pre;">{{orig.body}}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -327,7 +328,8 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td style="word-wrap: break-word;">
+                                        <!-- <td style="word-wrap: break-word;"> -->
+                                        <td style="white-space: pre;">
                                             <span ng-show='!shadowed.show_diff' ng-bind="shadowed.body"></span>
                                             <span ng-show='shadowed.show_diff' ng-bind-html-unsafe="shadowed.body_diff"></span>
                                         </td>

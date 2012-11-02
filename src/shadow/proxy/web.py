@@ -1,4 +1,6 @@
 from flask import Flask, request
+import biplist
+import json
 import logging
 import requests
 import time
@@ -82,7 +84,7 @@ class ProxyFlask(Flask):
             resp = {
                 'headers': response.headers,
                 'status_code': response.status_code,
-                'body': response.text,
+                'body': self.parse_response(response),
                 'elapsed_time': elapsed_time,
                 'type': 'http_response'
             }
@@ -119,6 +121,20 @@ class ProxyFlask(Flask):
             }
         }
         return req
+
+    def parse_response(self, response):
+        headers = response.headers
+        content_type = headers.get('content-type')
+        if content_type == 'application/x-plist':
+            try:
+                result = json.dumps(biplist.readPlistFromString(response.content), indent=4, default=str)
+            except Exception, e:
+                result = response.content
+                logger.warning("Response parser: {err}".format(err=e))
+        else:
+            result = response.text
+
+        return result
 
     def process_greenlets(self, request, greenlets):
         results = []
