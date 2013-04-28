@@ -1,313 +1,312 @@
 <!DOCTYPE html>
 <html ng-app="shadowApp">
-    <head>
-        <title>Shadow</title>
-        <link rel="stylesheet" href="static/css/bootstrap.css">
-        <link rel="stylesheet" href="static/css/bootstrap-responsive.css">
-        <link rel="stylesheet" href="static/css/ng-grid.css">
-        <script type="text/javascript" src="static/js/jquery-1.9.1.min.js"></script>
-        <script type="text/javascript" src="static/js/underscore-min.js"></script>
-        <script type="text/javascript" src="static/js/angular-1.0.6.min.js"></script>
-        <script type="text/javascript" src="static/js/ng-grid-2.0.4.debug.js"></script>
-        <script type="text/javascript" src="static/js/shadow.js"></script>
-        <script type="text/javascript" src="static/js/diff.js"></script>
-        <style type="text/css">
-            .requests-buttons {
-                float: right;
-            }
-            .filter-labels {
-                display: inline-block;
-            }
-            .filter-labels .label {
-                margin-right: 5px;
-                cursor: pointer;
-            }
-            #scrollableTable {
-                width: 100%; 
-                display: block; 
-                height: 200px; 
-                overflow-y: scroll;
-                margin-top: 10px;
-                margin-bottom: 10px;
-            }
-            #follow-buttons {
-                float: right;
-            }
-            .margin-top-20 {
-                margin-top: 20px;
-            }
-            .response-label {
-                float: right;
-            }
-            span.ins {
-                background: #76e213;
-                color: #22360c;
-                text-decoration: none;
-            }
+<head>
+    <title>Shadow</title>
+    <link rel="stylesheet" href="static/css/bootstrap.css">
+    <link rel="stylesheet" href="static/css/bootstrap-responsive.css">
+    <link rel="stylesheet" href="static/css/ng-grid.css">
+    <script type="text/javascript" src="static/js/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="static/js/underscore-min.js"></script>
+    <script type="text/javascript" src="static/js/angular-1.0.6.min.js"></script>
+    <script type="text/javascript" src="static/js/ng-grid-2.0.4.min.js"></script>
+    <script type="text/javascript" src="static/js/shadow.js"></script>
+    <script type="text/javascript" src="static/js/diff.js"></script>
+    <style type="text/css">
+        .requests-buttons {
+            float: right;
+        }
 
-            tr.selected {
-                background: #f5f5f5;
-            }
+        .filter-labels {
+            display: inline-block;
+        }
 
-            span.del {
-                text-decoration: none;
-                color: #b30000;
-                background: #e7a7a1;
-            }
+        .filter-labels .label {
+            margin-right: 5px;
+            cursor: pointer;
+        }
 
-            .gridStyle {
-                height: 400px;
-            }
+        #follow-buttons {
+            float: right;
+        }
 
-            .ngCell div {
-                padding: 7px 10px;
-            }
+        .margin-top-20 {
+            margin-top: 20px;
+        }
 
-            .ngViewport :focus {
-                outline: rgba(0,0,0,0) auto 0px;
-            }
-        </style>
-    </head>
-    <body ng-controller="ResultsCtrl">
-        <div class="navbar navbar-fixed-top">
-            <div class="navbar-inner">
-                <div class="container">
-                    <a href="#" class="brand">Shadow</a>
-                </div>
-            </div>
+        .response-label {
+            float: right;
+        }
+
+        span.ins {
+            background: #76e213;
+            color: #22360c;
+            text-decoration: none;
+        }
+
+        span.del {
+            text-decoration: none;
+            color: #b30000;
+            background: #e7a7a1;
+        }
+
+        .gridStyle {
+            height: 400px;
+        }
+
+        .ngCell div {
+            padding: 7px 10px;
+        }
+
+        .ngViewport :focus {
+            outline: rgba(0, 0, 0, 0) auto 0px;
+        }
+    </style>
+</head>
+<body ng-controller="ResultsCtrl">
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a href="#" class="brand">Shadow</a>
         </div>
-        <div class="container" style="margin-top: 60px">
-            <div class="row">
-                <div class="span12">
-                    <div class="requests-buttons">
-                        <div class="filter-labels">
-                            <a class="label" ng-class="filterClass('success')" ng-click="toggleFilter('success')">
-                                Success - {{resultsFilter['success'].count}}
-                            </a>
-                            <span class="label" ng-class="filterClass('status_code_diff')" ng-click="toggleFilter('status_code_diff')">
+    </div>
+</div>
+<div class="container" style="margin-top: 60px">
+<div class="row">
+    <div class="span12">
+        <div class="requests-buttons">
+            <div class="filter-labels">
+                <a class="label" ng-class="filterClass('success')" ng-click="toggleFilter('success')">
+                    Success - {{resultsFilter['success'].count}}
+                </a>
+                            <span class="label" ng-class="filterClass('status_code_diff')"
+                                  ng-click="toggleFilter('status_code_diff')">
                                 Status Code Diff - {{resultsFilter['status_code_diff'].count}}
                             </span>
-                            <span class="label" ng-class="filterClass('body_diff')" ng-click="toggleFilter('body_diff')">
+                            <span class="label" ng-class="filterClass('body_diff')"
+                                  ng-click="toggleFilter('body_diff')">
                                 Body Diff - {{resultsFilter['body_diff'].count}}
                             </span>
-                        </div>
-                        <button class="btn btn-info" ng-click='deleteNonError()'>Delete Non-errors</button>
-                        <button class="btn-danger btn" ng-click='emptyResults()'>Delete All</button>
-                    </div>
-                    <h2>Requests</h2>
-
-                    <div ng-grid="gridOptions" class="gridStyle"></div>
-
-                    <div id="follow-buttons">
-                        <button class="btn" ng-class="followBtn[followState].clazz" ng-click="followState = !followState">
-                            {{ followBtn[followState].label }} 
-                        </button>
-                    </div>
-                </div>
             </div>
-            <div class="row well margin-top-20" ng-hide="currentResult == ''">
-                <div class="container">
-                    <div class="row">
-                        <div class="span12">
-                            <div style="float: right">
-                                <button class="btn" ng-click="prevResult()">Prev</button>
-                                <button class="btn" ng-click="nextResult()">Next</button>
-                                <button class="btn btn-danger" ng-click='removeResult(currentResult.index)'>Delete</button>
-                            </div>
-                                <h2>
-                                    Request {{currentResult.index}}
-                                </h2>
-                            <div class="container">
-                                <div class="row">
-                                    <div class="span6">
-                                        <table class="table table-stripped table-condensed">
-                                            <thead>
-                                                <tr>
-                                                    <th>Path</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>{{currentResult.request.original.url}}</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                        <table class="table table-stripped table-condensed">
-                                            <thead>
-                                                <tr>
-                                                    <th colspan="2">Headers</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr ng-repeat='(key, value) in currentResult.request.original.headers'>
-                                                    <td>{{key}}</td>
-                                                    <td>{{value}}</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div class="span6">
-                                        <table class="table table-stripped table-condensed">
-                                            <thead>
-                                                <tr>
-                                                    <th colspan="2">GET Params</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr ng-repeat='(key, value) in currentResult.request.original.get'>
-                                                    <td>{{key}}</td>
-                                                    <td>{{value}}</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                        <table class="table table-stripped table-condensed">
-                                            <thead>
-                                                <tr>
-                                                    <th colspan="2">POST Params</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr ng-repeat='(key, value) in currentResult.request.original.post'>
-                                                    <td>{{key}}</td>
-                                                    <td>{{value}}</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="span12">
-                            <h2>
-                                Responses
-                            </h2>
-                        </div>
-                        <div class="span6">
-                            <table class="table table-stripped table-condensed">
-                                <thead>
-                                    <tr>
-                                        <th colspan="2">Headers</th>
+            <button class="btn btn-info" ng-click='deleteNonError()'>Delete Non-errors</button>
+            <button class="btn-danger btn" ng-click='emptyResults()'>Delete All</button>
+        </div>
+        <h2>Requests</h2>
+
+        <div ng-grid="gridOptions" class="gridStyle"></div>
+
+        <div id="follow-buttons">
+            <button class="btn" ng-class="followBtn[followState].clazz" ng-click="followState = !followState">
+                {{ followBtn[followState].label }}
+            </button>
+        </div>
+    </div>
+</div>
+<div class="row well margin-top-20" ng-hide="currentResult == ''">
+<div class="container">
+<div class="row">
+<div class="span12">
+    <div style="float: right">
+        <button class="btn" ng-click="prevResult()">Prev</button>
+        <button class="btn" ng-click="nextResult()">Next</button>
+        <button class="btn btn-danger" ng-click='removeResult(currentResult.index)'>Delete</button>
+    </div>
+    <h2>
+        Request {{currentResult.index}}
+    </h2>
+
+    <div class="container">
+        <div class="row">
+            <div class="span6">
+                <table class="table table-stripped table-condensed">
+                    <thead>
+                    <tr>
+                        <th>Path</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>{{currentResult.request.original.url}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <table class="table table-stripped table-condensed">
+                    <thead>
+                    <tr>
+                        <th colspan="2">Headers</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat='(key, value) in currentResult.request.original.headers'>
+                        <td>{{key}}</td>
+                        <td>{{value}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="span6">
+                <table class="table table-stripped table-condensed">
+                    <thead>
+                    <tr>
+                        <th colspan="2">GET Params</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat='(key, value) in currentResult.request.original.get'>
+                        <td>{{key}}</td>
+                        <td>{{value}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <table class="table table-stripped table-condensed">
+                    <thead>
+                    <tr>
+                        <th colspan="2">POST Params</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat='(key, value) in currentResult.request.original.post'>
+                        <td>{{key}}</td>
+                        <td>{{value}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="span12">
+    <h2>
+        Responses
+    </h2>
+</div>
+<div class="span6">
+    <table class="table table-stripped table-condensed">
+        <thead>
+        <tr>
+            <th colspan="2">Headers</th>
                                         <span class="label label-info response-label">
                                                 Actual
                                         </span>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat='(key, value) in orig.headers'>
-                                        <td>{{key}}</td>
-                                        <td>{{value}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <table class="table table-stripped table-condensed">
-                                <thead>
-                                    <tr>
-                                        <th>Response Time</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>{{orig.elapsed_time}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <table class="table table-stripped table-condensed">
-                                <thead>
-                                    <tr>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>{{orig.status_code}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <table class="table table-stripped table-condensed">
-                                <thead>
-                                    <tr>
-                                        <th>Body</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td style="word-wrap: break-word;">{{orig.body}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="span6">
-                            <table class="table table-stripped table-condensed">
-                                <thead>
-                                    <tr>
-                                        <th colspan="2">Headers</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat='(key, value) in orig.headers'>
+            <td>{{key}}</td>
+            <td>{{value}}</td>
+        </tr>
+        </tbody>
+    </table>
+    <table class="table table-stripped table-condensed">
+        <thead>
+        <tr>
+            <th>Response Time</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>{{orig.elapsed_time}}</td>
+        </tr>
+        </tbody>
+    </table>
+    <table class="table table-stripped table-condensed">
+        <thead>
+        <tr>
+            <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>{{orig.status_code}}</td>
+        </tr>
+        </tbody>
+    </table>
+    <table class="table table-stripped table-condensed">
+        <thead>
+        <tr>
+            <th>Body</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td style="word-wrap: break-word;">{{orig.body}}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="span6">
+    <table class="table table-stripped table-condensed">
+        <thead>
+        <tr>
+            <th colspan="2">Headers</th>
                                         <span class="label label-inverse response-label">
                                                Shadow
                                         </span>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat='(key, value) in shadowed.headers'>
-                                        <td>{{key}}</td>
-                                        <td>{{value}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <table class="table table-stripped table-condensed">
-                                <thead>
-                                    <tr>
-                                        <th>Response Time</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>{{shadowed.elapsed_time}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <table class="table table-stripped table-condensed">
-                                <thead>
-                                    <tr>
-                                        <th>Status
-                                            <span class="label label-important response-label" ng-show='currentResult.status_code_diff'>Status Code Diff</span>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>{{shadowed.status_code}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <table class="table table-stripped table-condensed">
-                                <thead>
-                                    <tr>
-                                        <th>Body
-                                            <span class="label label-warning response-label" ng-show='currentResult.body_diff'>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat='(key, value) in shadowed.headers'>
+            <td>{{key}}</td>
+            <td>{{value}}</td>
+        </tr>
+        </tbody>
+    </table>
+    <table class="table table-stripped table-condensed">
+        <thead>
+        <tr>
+            <th>Response Time</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>{{shadowed.elapsed_time}}</td>
+        </tr>
+        </tbody>
+    </table>
+    <table class="table table-stripped table-condensed">
+        <thead>
+        <tr>
+            <th>Status
+                <span class="label label-important response-label" ng-show='currentResult.status_code_diff'>Status Code Diff</span>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>{{shadowed.status_code}}</td>
+        </tr>
+        </tbody>
+    </table>
+    <table class="table table-stripped table-condensed">
+        <thead>
+        <tr>
+            <th>Body
+                                            <span class="label label-warning response-label"
+                                                  ng-show='currentResult.body_diff'>
                                                 Body Diff
                                             </span>
-                                            <button class="btn btn-mini response-label" style="margin-top:-1px; margin-right:2px" ng-class="showDiffBtn[shadowed.show_diff].clazz"
-                                            ng-click="shadowed.show_diff = !shadowed.show_diff"
-                                            ng-show='currentResult.body_diff'>
-                                                {{showDiffBtn[shadowed.show_diff].label}}
-                                            </button>
-                                        </th>
+                <button class="btn btn-mini response-label" style="margin-top:-1px; margin-right:2px"
+                        ng-class="showDiffBtn[shadowed.show_diff].clazz"
+                        ng-click="shadowed.show_diff = !shadowed.show_diff"
+                        ng-show='currentResult.body_diff'>
+                    {{showDiffBtn[shadowed.show_diff].label}}
+                </button>
+            </th>
 
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td style="word-wrap: break-word;">
-                                            <span ng-show='!shadowed.show_diff' ng-bind="shadowed.body"></span>
-                                            <span ng-show='shadowed.show_diff' ng-bind-html-unsafe="shadowed.body_diff"></span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </body>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td style="word-wrap: break-word;">
+                <span ng-show='!shadowed.show_diff' ng-bind="shadowed.body"></span>
+                <span ng-show='shadowed.show_diff' ng-bind-html-unsafe="shadowed.body_diff"></span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body>
 </html>
