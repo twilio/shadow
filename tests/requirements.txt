@@ -1,4 +1,0 @@
-nose
-mock
-coverage
-nosexcover
