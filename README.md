@@ -9,98 +9,96 @@ Shadowing deployments allows users to assert expected behaviors on the new codeb
 
 Shadow comes with a UI that allows users to monitor the stream of requests live.
 
-All request and responses are also logged in as a JSON (Default: log/shadow-results.log) for easy parsing and analysis.
+## Requirements
 
-For more information, check out our blog post on Shadow in the coming week. 
+1. Java 1.6+
+2. SBT 0.12.1+
+
+## Building
+
+1. Clone the repository: `git clone https://github.com/twilio/shadow.git`
+2. Build the JAR: `sbt assembly`
+
+This generates an assembled Jar with all dependencies in `/target/shadow-assembly-<VERSION>.jar`
+
 
 ## Installing
 
-No escalated privledges needed unless you are using privileged ports.  This will install the core libraries into your site-packages directory.
-
-	python setup.py install
+No escalated privledges needed unless you are using privileged ports. Just copy the Jar built in the previous step on to your existing server.
 
 ## Configuring
 
-There are 2 bundled configuration files:
+Make a copy of the example configuration `application.conf.example` and change the settings to fit your environment.
 
-debug_shadow.conf.py - for local development and debugging
 
-shadow.conf.py - for running a shadow service
+## Shadow specific configuration
 
-```python 
-
-# Shadow specific configuration
-
-ui = {
-	# port and address for the UI
-    'port': 9000, 
-    'address': '0.0.0.0',
-}
-
-proxy = {
-
-    # address and port shadow runs on
-    'address': '0.0.0.0',
-    'port': 8081,
-
-	# server running the old versions of the code
-    'old_servers': ['http://localhost:8081/'],
-    
-    # timeout values to use when making requests to old server
-    'old_servers_timeout': 15.0,
-
-	# Additional parameters that we want to add 
-	# when making requests to the old server.
-	# These will overwrite the existing params in the request
-	
-    'old_servers_additional_get_params': [],
-    'old_servers_additional_post_params': [],
-    'old_servers_additional_headers': [],
-
-	# same parameters can be used for the new server
-    'new_servers': ['http://localhost:8081/'],
-    'new_servers_timeout': 15.0,
-
-    'new_servers_additional_get_params': [],
-    'new_servers_additional_post_params': [],
-    'new_servers_additional_headers': [],
-}
 
 ```
+akka {
+  loglevel = INFO
+}
+
+shadow {
+  version = "0.1-SNAPSHOT"
+
+  # host and port to listen to incoming requests
+  proxy-host = localhost
+  proxy-port = 8000
+
+  # host and port for the ui
+  ui-host = localhost
+  ui-port = 8081
+
+  # host and port of the service we are transitioning from
+  # shadow returns responses from this host
+  trueServer {
+    host = "httpbin.org"
+    port = 80
+  }
+
+  # host and port of the service we are transitioning to
+  shadowServer {
+    host = "httpbin.org"
+    port = 80
+  }
+}
+
+spray.can.server {
+  server-header = shadow-server/${shadow.version}
+
+  # max request timeout
+  request-timeout = 15s
+  stats-support = true
+}
+
+spray.can.client {
+    user-agent-header = shadow/${shadow.version}
+}
+```
 	
-There are also Gingko specific configuration parameters for managing service and daemonization. 
-
-Check out Ginkgo's [docs](http://ginkgo.readthedocs.org/en/latest/index.html) for more information on running Ginkgo services
-
 ## Running
 
-Local development execution can be done with:
+Running `java -jar -Dconfig.file=application.conf shadow-assembly-<VERSION>.jar` will start the server in the foreground. 
 
-    ginkgo debug_shadow.conf.py
+We recommend using a supervisor such as `jsvc` or `runit` to manage running shadow
 
-Server execution should be done with:
+Be default, the UI can be accessed at [http://localhost:8081](http://localhost:8081)
 
-    ginkgoctl shadow.conf.py start
+## Testing
 
-Be default, the UI can be accessed at [http://localhost:9000](http://localhost:9000)
+Tests are found under `src/main/test/scala/`
 
-##Testing
+To run them, use: `sbt test`
 
-Tests are in the `tests` directory.  Run them using nose
-
-    nosetests tests/
-
-##Build Status
-[![Build Status](https://secure.travis-ci.org/twilio/shadow.png)](http://travis-ci.org/twilio/shadow)
-
+## Build Status
+[![Build Status](https://secure.travis-ci.org/kelvl/shadow.png)](http://travis-ci.org/kelvl/shadow)
 
 ## Based upon
 
-* [Ginkgo](https://github.com/progrium/ginkgo)
-* [Gevent](http://www.gevent.org/)
-* [Flask](http://flask.pocoo.org/)
-* [Gevent-socketio](https://github.com/abourget/gevent-socketio)
-* [Socketio](http://socket.io/)
 * [AngularJS](http://angularjs.org/)
 * [jsdiff](https://github.com/kpdecker/jsdiff)
+* [Scala](http://www.scala.org)
+* [Spray](http://www.spray.io)
+* [Akka](http://www.akka.io)
 

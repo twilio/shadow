@@ -1,0 +1,40 @@
+akka {
+  loglevel = INFO
+}
+
+shadow {
+  version = "0.1-SNAPSHOT"
+
+  # host and port to listen to incoming requests
+  proxy-host = localhost
+  proxy-port = 8000
+
+  # host and port for the ui
+  ui-host = localhost
+  ui-port = 8081
+
+  # host and port of the service we are transitioning from
+  # shadow returns responses from this host
+  trueServer {
+    host = "httpbin.org"
+    port = 80
+  }
+
+  # host and port of the service we are transitioning to
+  shadowServer {
+    host = "httpbin.org"
+    port = 80
+  }
+}
+
+spray.can.server {
+  server-header = shadow-server/${shadow.version}
+  
+  # max request timeout
+  request-timeout = 15s
+  stats-support = true
+}
+
+spray.can.client {
+    user-agent-header = shadow/${shadow.version}
+}
