@@ -95,62 +95,10 @@ trait UIService extends HttpService {
 
   val metricsRegistry: MetricsRegistry
 
-  val spammer: ActorRef = actorRefFactory.actorOf(Props(new Actor {
-
-    import spray.httpx.RequestBuilding._
-    import scala.util.Random
-
-    var shouldSpam = false
-
-    def choice[T](choices: Array[T]) = {
-      choices(Random.nextInt(choices.size))
-    }
-
-    val statuses = Array(StatusCodes.OK, StatusCodes.InternalServerError)
-    val entities = Array(HttpEntity("helloworld"), HttpEntity("wtf world!"))
-
-    def mockResponse = {
-      (HttpResponse(choice(statuses), choice(entities), Nil, HttpProtocols.`HTTP/1.0`), Random.nextLong())
-    }
-
-    def example = new ShadowEntry(Get("/test"), (mockResponse, mockResponse))
-
-    def receive = {
-      case "Spam" => {
-        if(shouldSpam) {
-          context.system.eventStream.publish(example)
-          Thread.sleep(10)
-          self ! "Spam"
-        }
-      }
-
-      case "Start" => {
-        shouldSpam = true
-        self ! "Spam"
-      }
-      case "Stop" => {
-        println("Stopped received")
-        shouldSpam = false
-      }
-    }
-  }))
-
   val myRoute =
     path("stream") {
       get { ctx =>
           actorRefFactory.actorOf(Props(new ResponseStreamActor(ctx)))
-      }
-    } ~
-    path("spam") {
-      get { ctx =>
-        spammer ! "Start"
-        ctx.complete(StatusCodes.OK)
-      }
-    } ~
-    path("stop") {
-      get { ctx =>
-        spammer ! "Stop"
-        ctx.complete(StatusCodes.OK)
       }
     } ~
     path("stats") {
