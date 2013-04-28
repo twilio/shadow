@@ -1,47 +1,106 @@
 
-Name: shadow
-Author: Kelvin Law - kelvin@twilio.com
-Created: Mon Aug  6 20:42:47 2012
+#Shadow Proxy
 
-Shadow proxy
+##Introduction
 
-======================================================================
+Shadow is a HTTP debugging proxy that sits in front of an existing service and a service with new code changes. It copies and directs incoming requests to both downstream services and compares the responses from those services.
 
-How to use this service:
+Shadowing deployments allows users to assert expected behaviors on the new codebase and detect unexpected behavioral changes before pushing new code into production.
 
+Shadow comes with a UI that allows users to monitor the stream of requests live.
 
+All request and responses are also logged in as a JSON (Default: log/shadow-results.log) for easy parsing and analysis.
 
+For more information, check out our blog post on Shadow in the coming week. 
 
+## Installing
 
+No escalated privledges needed unless you are using privileged ports.  This will install the core libraries into your site-packages directory.
 
-Local Installation:
+	python setup.py install
 
-    No escalated privledges needed.  This will install the core
-    libraries into your site-packages directory.
+## Configuring
+
+There are 2 bundled configuration files:
+
+debug_shadow.conf.py - for local development and debugging
+
+shadow.conf.py - for running a shadow service
+
+```python 
+
+# Shadow specific configuration
+
+ui = {
+	# port and address for the UI
+    'port': 9000, 
+    'address': '0.0.0.0',
+}
+
+proxy = {
+
+    # address and port shadow runs on
+    'address': '0.0.0.0',
+    'port': 8081,
+
+	# server running the old versions of the code
+    'old_servers': ['http://localhost:8081/'],
     
-        python setup.py install
-    
-Server Installation
+    # timeout values to use when making requests to old server
+    'old_servers_timeout': 15.0,
 
-    Root privledges needed.  This will install the init.d script and
-    configuration files required to start and stop this service.  You
-    should run this after running `python setup.py install`.
+	# Additional parameters that we want to add 
+	# when making requests to the old server.
+	# These will overwrite the existing params in the request
+	
+    'old_servers_additional_get_params': [],
+    'old_servers_additional_post_params': [],
+    'old_servers_additional_headers': [],
 
-        sudo python setup.py server
+	# same parameters can be used for the new server
+    'new_servers': ['http://localhost:8081/'],
+    'new_servers_timeout': 15.0,
 
-Running:
+    'new_servers_additional_get_params': [],
+    'new_servers_additional_post_params': [],
+    'new_servers_additional_headers': [],
+}
 
-    Local development execution can be done with
+```
+	
+There are also Gingko specific configuration parameters for managing service and daemonization. 
 
-         python debug_shadow.conf.py
+Check out Ginkgo's [docs](http://ginkgo.readthedocs.org/en/latest/index.html) for more information on running Ginkgo services
 
-    Server execution should be done with 
+## Running
 
-         sudo /etc/init.d/shadow {start|stop|restart}
+Local development execution can be done with:
 
-Testing:
+    ginkgo debug_shadow.conf.py
 
-    Tests are in the `tests` directory.  Run them using nose
+Server execution should be done with:
 
-        nosetests tests/
+    ginkgoctl shadow.conf.py start
+
+Be default, the UI can be accessed at [http://localhost:9000](http://localhost:9000)
+
+##Testing
+
+Tests are in the `tests` directory.  Run them using nose
+
+    nosetests tests/
+
+##Build Status
+[![Build Status](https://secure.travis-ci.org/twilio/shadow.png)](http://travis-ci.org/twilio/shadow)
+
+
+## Based upon
+
+* [Ginkgo](https://github.com/progrium/ginkgo)
+* [Gevent](http://www.gevent.org/)
+* [Flask](http://flask.pocoo.org/)
+* [Gevent-socketio](https://github.com/abourget/gevent-socketio)
+* [Socketio](http://socket.io/)
+* [AngularJS](http://angularjs.org/)
+* [jsdiff](https://github.com/kpdecker/jsdiff)
 
