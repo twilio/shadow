@@ -35,7 +35,10 @@ object ShadowBuild extends Build {
       compileOrder := CompileOrder.Mixed,
       mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) => { case x => old(x) }},
       classpathTypes ~= (_ + "orbit"),
-      resolvers ++= List("Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/")
+      resolvers ++= List(
+        "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
+        "spray repo" at "http://repo.spray.io"
+      )
     )
   )
 }
