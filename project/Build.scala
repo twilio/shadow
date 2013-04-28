@@ -28,7 +28,8 @@ object ShadowBuild extends Build {
 
           // test
           "org.scalatest"         %%  "scalatest"   % "2.0.M5b"     % "test",
-          "com.xebialabs.restito" %   "restito"     % "0.4-alpha-2" % "test"
+          "com.xebialabs.restito" %   "restito"     % "0.4-alpha-2" % "test",
+          "com.typesafe.akka"     %% "akka-testkit" % "2.1.0"       % "test"
 
       ),
       compileOrder := CompileOrder.Mixed,

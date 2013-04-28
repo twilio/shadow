@@ -20,7 +20,6 @@ object Boot extends App{
 
   val httpClient = system.actorOf(Props(new HttpClient(ioBridge, ClientSettings(config))), "client")
 
-  val hub = system.actorOf(Props[HubActor])
   val ui = system.actorOf(Props(new UIActor(metricsRegistry)))
 
   val shadowConfig = ShadowConfig(
