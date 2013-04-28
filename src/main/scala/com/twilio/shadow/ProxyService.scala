@@ -2,7 +2,6 @@ package com.twilio.shadow
 
 import akka.actor.{ActorSystem, ActorRef, Actor}
 import spray.routing._
-import spray.routing.directives.LoggingMagnet
 import spray.can.client.HttpDialog
 import com.yammer.metrics.core.{MetricsRegistry, Clock, Timer}
 import scala.concurrent.{Promise, Future}

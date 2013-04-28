@@ -17,7 +17,7 @@ import spray.httpx.RequestBuilding.Get
 import scala.concurrent.Future
 import java.util.concurrent.TimeUnit
 import org.scalatest.concurrent.Futures
-import org.scalatest.time.{Span, SpanSugar}
+import org.scalatest.time.SpanSugar
 import spray.io.SingletonHandler
 import scala.util.Failure
 import scala.util.Success

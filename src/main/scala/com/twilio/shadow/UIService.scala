@@ -1,6 +1,6 @@
 package com.twilio.shadow
 
-import akka.actor.{Props, ActorRef, Actor}
+import akka.actor.{Props, Actor}
 import spray.routing._
 import spray.http._
 import spray.util.SprayActorLogging

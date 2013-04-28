@@ -1,14 +1,12 @@
 package com.twilio.shadow
 
-import akka.actor.{Actor, ActorSystem, Props}
+import akka.actor.{ActorSystem, Props}
 import spray.io.{SingletonHandler, IOExtension}
 import spray.can.server.{ServerSettings, HttpServer}
-import spray.io.IOServer.{Bound, Bind}
-import spray.can.client.{HttpClient, ClientSettings, DefaultHttpClient}
-import com.yammer.metrics.Metrics
+import spray.io.IOServer.Bind
+import spray.can.client.{HttpClient, ClientSettings}
 import com.yammer.metrics.core.MetricsRegistry
 import com.typesafe.config.ConfigFactory
-import spray.http.HttpResponse
 
 object Boot extends App{
 
