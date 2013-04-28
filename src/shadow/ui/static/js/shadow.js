@@ -1,5 +1,5 @@
-WEB_SOCKET_SWF_LOCATION = "/WebSocketMain.swf";
-WEB_SOCKET_DEBUG = false;
+var WEB_SOCKET_SWF_LOCATION = "/WebSocketMain.swf";
+var WEB_SOCKET_DEBUG = false;
 
 function ResultsCtrl($scope) {
     // holds everything that comes in
@@ -29,11 +29,11 @@ function ResultsCtrl($scope) {
 
     // state of show/hide diff button
     $scope.showDiffBtn = {
-        true: {
+        'true': {
             label: 'Hide Diff',
             clazz: 'btn-inverse'
         },
-        false: {
+        'false': {
             label: 'Show Diff',
             clazz: ''
         }
@@ -41,11 +41,11 @@ function ResultsCtrl($scope) {
 
     // state of follow button
     $scope.followBtn = {
-        true: {
+        'true': {
             label: 'Un-Follow',
             clazz: 'btn-inverse'
         },
-        false: {
+        'false': {
             label: 'Follow',
             clazz: ''
         }
@@ -68,8 +68,8 @@ function ResultsCtrl($scope) {
 
     // subscribe to results pubbed
     $scope.socket.on('results', function(result){
-		$scope.addResult(result);
-	});
+        $scope.addResult(result);
+    });
 
     // counts the number of results
     $scope.count = 0;
@@ -77,12 +77,41 @@ function ResultsCtrl($scope) {
     // calls whenever a new result comes in
     $scope.addResult = function(result){
 
-        // check if the status codes are differentm
-        status_code_diff = _.chain(result.results).pluck('status_code').uniq().size().value() > 1;
-        
-        // check if the body content is differentm
-        body_diff = _.chain(result.results).pluck('body').uniq().size().value() > 1;
-        
+        // check if the status codes are different
+        var status_code_diff = _.chain(result.results).pluck('status_code').uniq().size().value() > 1;
+        var body_diff = false;
+        var strict_check = false;
+
+        if (_.all(result.results, function (result) {
+            return (/json/i).test(result.headers['content-type']);
+        })) {
+            // Try comparing the parsed JSON, maybe make this optional if we
+            // actually care about spacing or the order of properties in the
+            // returned JSON
+            try {
+                _.each(result.results, function (a) {
+                    var aJson = JSON.parse(a.body);
+
+                    _.each(result.results, function (b) {
+                        var bJson = JSON.parse(b.body);
+
+                        if (!_.isEqual(aJson, bJson)) {
+                            body_diff = true;
+                        }
+                    });
+                });
+            } catch (e) {
+                strict_check = true;
+            }
+        } else {
+            strict_check = true;
+        }
+
+        // strict check if the body content is different
+        if (strict_check) {
+            body_diff = _.chain(result.results).pluck('body').uniq().size().value() > 1;
+        }
+
         // create the states once
         result['status_code_diff'] = status_code_diff;
         result['body_diff'] = body_diff;
@@ -97,9 +126,9 @@ function ResultsCtrl($scope) {
 
         // increment the result index
         result['index'] = $scope.count++;
-        
+
         // add the result to the results list and effect the change on the UI
-		$scope.$apply(function(){
+        $scope.$apply(function(){
             $scope.results.push(result);
         });
     };
@@ -114,7 +143,7 @@ function ResultsCtrl($scope) {
         var filter = $scope.resultsFilter[filter_name];
         return (filter.state) ? filter.clazz : '';
     };
-    
+
     // deletes successful requests (requests without differences)
     $scope.deleteNonError = function(){
 
@@ -177,13 +206,13 @@ function ResultsCtrl($scope) {
 
     // sets the current result and show it on the UI
     $scope.setCurrentResult = function(result, index, results){
-        
+
         // once the user selects a result stop following
         $scope.followState = false;
 
         var table = angular.element("#scrollableTable");
         var row = angular.element("#scrollableTable tbody tr").eq(index+1);
-        
+
         // scroll the list so that the current result is at the top of the list
         table.scrollTop(row.position().top);
 
@@ -208,7 +237,7 @@ function ResultsCtrl($scope) {
             // extract the body content and diff them
             var bodies = _.pluck(result.results, 'body');
             var diff = JsDiff.diffChars(bodies[0], bodies[1]);
-            
+
             // for each of the diffs generate the highlights
             var diffs =_.map(diff, function(x){
                 if(x.added === true){
@@ -234,5 +263,5 @@ function ResultsCtrl($scope) {
         // set the current result and display it
         $scope.currentResult = result;
     };
-    
+
 }
