@@ -1,0 +1,29 @@
+<div ng-style="{'cursor': row.cursor, 'z-index': renderedColumns[0].zIndex() }"
+     ng-class="renderedColumns[0].colIndex()" class="ngCell {{renderedColumns[0].cellClass}}">
+    <div>
+        <span ng-cell-text> {{row.entity.index}} {{row.entity.flag}}</span>
+    </div>
+</div>
+<div ng-style="{'cursor': row.cursor, 'z-index': renderedColumns[1].zIndex() }"
+     ng-class="renderedColumns[1].colIndex()" class="ngCell {{renderedColumns[1].cellClass}}">
+    <div class="ngCellText" ng-class="renderedColumns[1].colIndex()"><span ng-cell-text>
+            <span>
+                {{row.entity.request.original.method}} {{row.entity.request.original.url}}
+            </span>
+            <span class="label label-info" style="margin-left: 5px" ng-show="row.entity.results[0].status_code > 300">
+                {{row.entity.results[0].status_code}}
+            </span>
+            <span class="label label-inverse" style="margin-left: 5px" ng-show="row.entity.results[1].status_code > 300">
+                {{row.entity.results[1].status_code}}
+            </span>
+    </span></div>
+</div>
+<div ng-style="{'cursor': row.cursor, 'z-index': renderedColumns[2].zIndex() }"
+     ng-init="diffs=renderedColumns[2]; result=row.entity"
+     ng-class="renderedColumns[2].colIndex()" class="ngCell {{renderedColumns[2].cellClass}}">
+    <div class="ngCellText" ng-class="renderedColumns[2].colIndex()"><span ng-cell-text>
+            <span class="label label-important" ng-show='row.entity["status_code_diff"]'>Status Code Diff</span>
+            <span class="label label-warning" ng-show='row.entity["body_diff"]'>Body Diff</span>
+        </span></div>
+</div>
+
