@@ -1,6 +1,6 @@
 package com.twilio.shadow
 
-import akka.actor.{Props, ActorRef, Actor}
+import akka.actor.{Props, Actor}
 import spray.routing._
 import spray.http._
 import spray.util.SprayActorLogging
@@ -11,10 +11,13 @@ import spray.routing.RequestContext
 import spray.http.ChunkedResponseStart
 import org.json4s.native.JsonMethods._
 import org.json4s.JsonDSL._
-import com.yammer.metrics.core.{Timer, MetricsRegistry}
+import com.codahale.metrics.MetricRegistry
+import com.codahale.metrics.json.MetricsModule
+import java.util.concurrent.TimeUnit
+import com.fasterxml.jackson.databind.ObjectMapper
 
 
-class UIActor(val metricsRegistry: MetricsRegistry) extends Actor with UIService {
+class UIActor(val metricRegistry: MetricRegistry) extends Actor with UIService {
 
   def actorRefFactory = context
 
@@ -93,7 +96,14 @@ class ResponseStreamActor(val ctx: RequestContext) extends Actor with SprayActor
 
 trait UIService extends HttpService {
 
-  val metricsRegistry: MetricsRegistry
+  val metricRegistry: MetricRegistry
+
+  val objectMapper = new ObjectMapper()
+
+  objectMapper.registerModule(new MetricsModule(TimeUnit.SECONDS, TimeUnit.SECONDS, false))
+
+  val prettyJsonPrinter = objectMapper.writerWithDefaultPrettyPrinter()
+
 
   val myRoute =
     path("stream") {
@@ -104,16 +114,7 @@ trait UIService extends HttpService {
     path("stats") {
       get {
         complete {
-          import scala.collection.JavaConversions._
-
-          pretty(render("metrics" -> metricsRegistry.allMetrics().map { case (name, metric) =>
-            name.getName -> (metric match {
-              case t: Timer => {
-                Map("mean" -> t.mean(), "stddev" -> t.stdDev())
-              }
-            })
-          }.toMap
-          ))
+          prettyJsonPrinter.writeValueAsString(metricRegistry)
         }
       }
     } ~

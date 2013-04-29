@@ -9,7 +9,6 @@ import spray.can.client.{HttpDialog, HttpClient}
 import com.xebialabs.restito.builder.stub.StubHttp.whenHttp
 import com.xebialabs.restito.semantics.Action.{custom => customAction, _}
 import com.xebialabs.restito.semantics.Condition._
-import com.yammer.metrics.core.MetricsRegistry
 import spray.can.server.HttpServer
 import akka.testkit.TestProbe
 import spray.io.IOServer.Bind
@@ -17,7 +16,7 @@ import spray.httpx.RequestBuilding.Get
 import scala.concurrent.Future
 import java.util.concurrent.TimeUnit
 import org.scalatest.concurrent.Futures
-import org.scalatest.time.{Span, SpanSugar}
+import org.scalatest.time.SpanSugar
 import spray.io.SingletonHandler
 import scala.util.Failure
 import scala.util.Success
@@ -26,6 +25,7 @@ import org.glassfish.grizzly.http.util.HttpStatus
 import com.xebialabs.restito.semantics.Action
 import org.glassfish.grizzly.http.server.Response
 import scala.concurrent.duration.Duration
+import com.codahale.metrics.MetricRegistry
 
 trait ScalaFutures extends Futures {
   implicit class ScalaFutureConcept[T](fut: Future[T]) extends FutureConcept[T] {
@@ -65,7 +65,7 @@ class ProxySuite extends FunSpec with SpanSugar with ShouldMatchers with BeforeA
 
   trait EverythingFixture extends IOBridgeFixture {
     val httpClient = system.actorOf(Props(new HttpClient(ioBridge)), "client")
-    val metricsRegistry = new MetricsRegistry()
+    val metricsRegistry = new MetricRegistry()
   }
 
   def withStubServer(doTest: (StubServer, Int) => Any) {
