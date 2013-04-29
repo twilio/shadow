@@ -92,7 +92,7 @@ Tests are found under `src/main/test/scala/`
 To run them, use: `sbt test`
 
 ## Build Status
-[![Build Status](https://secure.travis-ci.org/kelvl/shadow.png)](http://travis-ci.org/kelvl/shadow)
+[![Build Status](https://travis-ci.org/twilio/shadow.png?branch=scala)](http://travis-ci.org/twilio/shadow?branch=scala)
 
 ## Based upon
 
