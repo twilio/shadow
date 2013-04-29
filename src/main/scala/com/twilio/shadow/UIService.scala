@@ -32,14 +32,15 @@ object JsonUtil {
   def shadowEntryJson(entry: ShadowEntry) = {
     val req = httpRequestToJson(entry.request)
 
-    val json =
-      ("request" -> (
-        ("original" -> req) ~
-          ("modified" -> req)
-        )) ~
-        ("results" -> List(entry.responses._1, entry.responses._2).map( x => httpResponseToJson(x._1) ~ ("elapsed_time" -> x._2) ))
+    ("request" -> (
+      ("original" -> req) ~
+      ("modified" -> req)
+    )) ~
+    ("results" -> List(entry.responses._1, entry.responses._2)
+      .map( x => httpResponseToJson(x._1) ~ ("elapsed_time" -> x._2) )
+    )
 
-    json
+
   }
 
   def httpRequestToJson(httpRequest: HttpRequest) = {
@@ -50,25 +51,20 @@ object JsonUtil {
 
     val queryParams = request.queryParams
 
-    val json =
-      ("url" -> request.path) ~
-        ("headers" -> request.headers.map { x => x.name -> x.value }.toMap ) ~
-        ("post" -> formParams) ~
-        ("method" -> request.method.value) ~
-        ("get" -> queryParams)
-    json
+    ("url" -> request.path) ~
+    ("headers" -> request.headers.map { x => x.name -> x.value }.toMap ) ~
+    ("post" -> formParams) ~
+    ("method" -> request.method.value) ~
+    ("get" -> queryParams)
   }
 
   def httpResponseToJson(httpResponse: HttpResponse) = {
-
-    val json =
-      ("headers" -> httpResponse.headers.map { x => (
-        (x.name -> x.value)
-        ) }.toMap) ~
-        ("status_code" -> httpResponse.status.value) ~
-        ("type" -> "http_response") ~
-        ("body" -> httpResponse.entity.asString)
-    json
+    ("headers" -> httpResponse.headers.map { x => (
+      (x.name -> x.value)
+    ) }.toMap) ~
+    ("status_code" -> httpResponse.status.value) ~
+    ("type" -> "http_response") ~
+    ("body" -> httpResponse.entity.asString)
   }
 }
 
@@ -89,6 +85,7 @@ class ResponseStreamActor(val ctx: RequestContext) extends Actor with SprayActor
 
     case HttpServer.Closed(_, reason) =>
       log.warning("Stopping response streaming due to {}", reason)
+      context.system.eventStream.unsubscribe(self)
       context.stop(self)
   }
 
