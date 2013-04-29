@@ -3,15 +3,14 @@ package com.twilio.shadow
 import akka.actor.{ActorSystem, ActorRef, Actor}
 import spray.routing._
 import spray.can.client.HttpDialog
-import com.yammer.metrics.core.{MetricsRegistry, Clock, Timer}
 import scala.concurrent.{Promise, Future}
 import spray.http.{HttpResponse, HttpRequest}
-import java.util.concurrent.TimeUnit
+import com.codahale.metrics.{Timer, MetricRegistry}
 
 
 class ProxyActor(
     val httpClient: ActorRef,
-    val metricsRegistry: MetricsRegistry,
+    val metricsRegistry: MetricRegistry,
     val shadowConfig: ShadowConfig) extends Actor with ProxyService {
 
   def actorRefFactory = context
@@ -29,20 +28,19 @@ case class ShadowConfig(trueHost: String, truePort: Int, shadowHost: String, sha
 trait ProxyService extends HttpService {
 
   val httpClient: ActorRef
-  val metricsRegistry: MetricsRegistry
+  val metricsRegistry: MetricRegistry
   val shadowConfig: ShadowConfig
   def actorSystem: ActorSystem
 
-  val trueTimer: Timer = metricsRegistry.newTimer(getClass, "true-server-resp")
-  val shadowTimer: Timer = metricsRegistry.newTimer(getClass, "shadow-server-resp")
+  val trueTimer: Timer = metricsRegistry.timer(MetricRegistry.name(getClass, "true-server-resp"))
+  val shadowTimer: Timer = metricsRegistry.timer(MetricRegistry.name(getClass, "shadow-server-resp"))
 
   def time[A](timer: Timer, future: Future[A]): Future[Long] = {
-    val start = Clock.defaultClock().tick()
     val ctx = timer.time()
     val promise = Promise[Long]()
     future.onComplete { x =>
-      ctx.stop()
-      promise.success(TimeUnit.NANOSECONDS.toMillis(Clock.defaultClock().tick() - start))
+      val timeElapsed = ctx.stop()
+      promise.success(timeElapsed)
     }
     promise.future
   }

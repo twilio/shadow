@@ -19,12 +19,14 @@ object ShadowBuild extends Build {
       assemblyCacheOutput in assembly := true,
       libraryDependencies ++= List(
         
-          "io.spray"            %   "spray-can"     % "1.1-M7",
-          "io.spray"            %   "spray-routing" % "1.1-M7",
-          "io.spray"            %   "spray-testkit" % "1.1-M7",
-          "com.typesafe.akka"   %%  "akka-actor"    % "2.1.0",
-          "org.json4s"          %%  "json4s-native" % "3.2.4",
-          "nl.grons"            %%  "metrics-scala" % "2.2.0",
+          "io.spray"              %   "spray-can"     % "1.1-M7",
+          "io.spray"              %   "spray-routing" % "1.1-M7",
+          "io.spray"              %   "spray-testkit" % "1.1-M7",
+          "com.typesafe.akka"     %%  "akka-actor"    % "2.1.0",
+          "org.json4s"            %%  "json4s-native" % "3.2.4",
+          "org.json4s"            %%  "json4s-jackson"% "3.2.4",
+          "com.codahale.metrics"  %   "metrics-core"  % "3.0.0-BETA2",
+          "com.codahale.metrics"  %   "metrics-json"  % "3.0.0-BETA2",
 
           // test
           "org.scalatest"         %%  "scalatest"   % "2.0.M5b"     % "test",

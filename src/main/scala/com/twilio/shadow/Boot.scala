@@ -5,8 +5,8 @@ import spray.io.{SingletonHandler, IOExtension}
 import spray.can.server.{ServerSettings, HttpServer}
 import spray.io.IOServer.Bind
 import spray.can.client.{HttpClient, ClientSettings}
-import com.yammer.metrics.core.MetricsRegistry
 import com.typesafe.config.ConfigFactory
+import com.codahale.metrics.MetricRegistry
 
 object Boot extends App{
 
@@ -14,7 +14,7 @@ object Boot extends App{
   val ioBridge = IOExtension(system).ioBridge()
 
   val config = ConfigFactory.load()
-  val metricsRegistry = new MetricsRegistry()
+  val metricsRegistry = new MetricRegistry()
 
   val httpClient = system.actorOf(Props(new HttpClient(ioBridge, ClientSettings(config))), "client")
 
