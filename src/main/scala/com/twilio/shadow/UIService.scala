@@ -85,6 +85,7 @@ class ResponseStreamActor(val ctx: RequestContext) extends Actor with SprayActor
 
     case HttpServer.Closed(_, reason) =>
       log.warning("Stopping response streaming due to {}", reason)
+      context.system.eventStream.unsubscribe(self)
       context.stop(self)
   }
 
