@@ -140,7 +140,7 @@ class ProxySuite extends FunSpec with SpanSugar with ShouldMatchers with BeforeA
 
         Given("trueServer and shadowServer both returns 200 OK")
         whenHttp(trueServer).`match`(get("/test")).then(success(), stringContent("OK")).mustHappen(1)
-        whenHttp(shadowServer).`match`(startsWithUri("/test")).then(success(), stringContent("OK")).mustHappen(1)
+        whenHttp(shadowServer).`match`(get("/test")).then(success(), stringContent("OK")).mustHappen(1)
 
         implicit val actorRefFactory: ActorRefFactory = actorSystem
 
@@ -173,7 +173,7 @@ class ProxySuite extends FunSpec with SpanSugar with ShouldMatchers with BeforeA
         Given("trueServer returns OK but shadowServer returns a 500")
         whenHttp(trueServer).`match`(get("/test")).then(success(), stringContent("OK")).mustHappen(1)
         // simulate a internal server error
-        whenHttp(shadowServer).`match`(startsWithUri("/test"))
+        whenHttp(shadowServer).`match`(get("/test"))
           .then(status(HttpStatus.INTERNAL_SERVER_ERROR_500), stringContent("NOT-OK")).mustHappen(1)
 
         implicit val actorRefFactory: ActorRefFactory = actorSystem
@@ -210,7 +210,7 @@ class ProxySuite extends FunSpec with SpanSugar with ShouldMatchers with BeforeA
         Given("true server returns 200 OK but shadow server returns a 500 after 2 seconds")
         whenHttp(trueServer).`match`(get("/test")).then(success(), stringContent("OK")).mustHappen(1)
         // simulate a internal server error after a timeout
-        whenHttp(shadowServer).`match`(startsWithUri("/test"))
+        whenHttp(shadowServer).`match`(get("/test"))
           .then(
             status(HttpStatus.INTERNAL_SERVER_ERROR_500),
             stringContent("NOT-OK"),
@@ -227,11 +227,11 @@ class ProxySuite extends FunSpec with SpanSugar with ShouldMatchers with BeforeA
         val respF = HttpDialog(httpClient, "localhost", proxyPort).send(Get("/test")).end
 
         // the timeout value here ensures that we are getting the result from the true server
-        // as soon as it is available and not after 5 seconds
+        // as soon as it is available and not after 2 seconds
         Then("proxy server should return as soon as the true server returns")
         respF.futureValue(timeout(1.seconds)).entity.asString should be ("OK")
 
-        // this should still be filed after 5 seconds
+        // this should still be filed after 2 seconds
         And("we should still get a ShadowEntry after the shadow server returns")
         val entry = testProbe.expectMsgType[ShadowEntry](max = Duration(3, TimeUnit.SECONDS))
 
