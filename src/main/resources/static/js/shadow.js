@@ -208,10 +208,10 @@ app.controller('ResultsCtrl', function ($scope, $filter) {
     };
 
     $scope.filterResult = function (result) {
-        var show = true;
+        var show = false;
         angular.forEach(['status_code_diff', 'body_diff', 'success'], function (filter) {
-            if (!$scope.resultsFilter[filter].state && result[filter]) {
-                show = false;
+            if ($scope.resultsFilter[filter].state && result[filter]) {
+                show = true;
             }
         });
 

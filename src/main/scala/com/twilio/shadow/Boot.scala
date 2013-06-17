@@ -5,10 +5,10 @@ import spray.io.{SingletonHandler, IOExtension}
 import spray.can.server.{ServerSettings, HttpServer}
 import spray.io.IOServer.Bind
 import spray.can.client.{HttpClient, ClientSettings}
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{Config, ConfigFactory}
 import com.codahale.metrics.MetricRegistry
 
-object Boot extends App{
+object Boot extends App {
 
   val system = ActorSystem("shadow-system")
   val ioBridge = IOExtension(system).ioBridge()
@@ -20,9 +20,34 @@ object Boot extends App{
 
   val ui = system.actorOf(Props(new UIActor(metricsRegistry)))
 
+  def generateShadowServerConfig(config: Config, path: String) = {
+    import scala.collection.JavaConversions._
+
+    val serverConfig = config.getConfig(path)
+
+    val queryOverridesConfig = serverConfig.getConfig("query-param-overrides")
+
+    val queryOverrides = queryOverridesConfig.entrySet().foldLeft(Map[String, Seq[String]]()) {
+      case (map, mapEntry) =>
+        val key = mapEntry.getKey
+        map.updated(key, queryOverridesConfig.getStringList(key).toIndexedSeq)
+    }
+
+    val formOverridesConfig = serverConfig.getConfig("form-param-overrides")
+
+    val formOverrides = formOverridesConfig.entrySet().foldLeft(Map[String, Seq[String]]()) {
+      case (map, mapEntry) =>
+        val key = mapEntry.getKey
+        map.updated(key, formOverridesConfig.getStringList(key).toIndexedSeq)
+    }
+
+    ShadowServerConfig(serverConfig.getString("host"), serverConfig.getInt("port"), queryOverrides, formOverrides)
+  }
+
   val shadowConfig = ShadowConfig(
-      config.getString("shadow.trueServer.host"), config.getInt("shadow.trueServer.port"),
-      config.getString("shadow.shadowServer.host"), config.getInt("shadow.shadowServer.port"))
+    generateShadowServerConfig(config, "shadow.trueServer"),
+    generateShadowServerConfig(config, "shadow.shadowServer"),
+    config.getString("shadow.results-log"))
 
   val proxy = system.actorOf(Props(new ProxyActor(httpClient, metricsRegistry, shadowConfig)))
 

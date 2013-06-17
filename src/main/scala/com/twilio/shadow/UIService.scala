@@ -25,49 +25,6 @@ class UIActor(val metricRegistry: MetricRegistry) extends Actor with UIService {
 
 }
 
-object JsonUtil {
-  implicit val defaultFormats = org.json4s.DefaultFormats
-  import spray.httpx.unmarshalling._
-
-  def shadowEntryJson(entry: ShadowEntry) = {
-    val req = httpRequestToJson(entry.request)
-
-    ("request" -> (
-      ("original" -> req) ~
-      ("modified" -> req)
-    )) ~
-    ("results" -> List(entry.responses._1, entry.responses._2)
-      .map( x => httpResponseToJson(x._1) ~ ("elapsed_time" -> x._2) )
-    )
-
-
-  }
-
-  def httpRequestToJson(httpRequest: HttpRequest) = {
-
-    val request = httpRequest.parseAll
-
-    val formParams = request.entity.as[FormData].fold( fa => Map[String, String](), fb => fb.fields)
-
-    val queryParams = request.queryParams
-
-    ("url" -> request.path) ~
-    ("headers" -> request.headers.map { x => x.name -> x.value }.toMap ) ~
-    ("post" -> formParams) ~
-    ("method" -> request.method.value) ~
-    ("get" -> queryParams)
-  }
-
-  def httpResponseToJson(httpResponse: HttpResponse) = {
-    ("headers" -> httpResponse.headers.map { x => (
-      (x.name -> x.value)
-    ) }.toMap) ~
-    ("status_code" -> httpResponse.status.value) ~
-    ("type" -> "http_response") ~
-    ("body" -> httpResponse.entity.asString)
-  }
-}
-
 class ResponseStreamActor(val ctx: RequestContext) extends Actor with SprayActorLogging {
   context.system.eventStream.subscribe(self, classOf[ShadowEntry])
 
@@ -79,7 +36,7 @@ class ResponseStreamActor(val ctx: RequestContext) extends Actor with SprayActor
 
   def receive = {
     case shadowEntry: ShadowEntry => {
-      val jsonString = compact(render(JsonUtil.shadowEntryJson(shadowEntry)))
+      val jsonString = compact(render(shadowEntry.json))
       ctx.responder ! MessageChunk(s"data: $jsonString\n\n")
     }
 
@@ -104,27 +61,28 @@ trait UIService extends HttpService {
 
   val myRoute =
     path("stream") {
-      get { ctx =>
+      get {
+        ctx =>
           actorRefFactory.actorOf(Props(new ResponseStreamActor(ctx)))
       }
     } ~
-    path("stats") {
-      get {
-        complete {
-          prettyJsonPrinter.writeValueAsString(metricRegistry)
+      path("stats") {
+        get {
+          complete {
+            prettyJsonPrinter.writeValueAsString(metricRegistry)
+          }
+        }
+      } ~
+      path("") {
+        get {
+          getFromResource("static/index.html")
+        }
+      } ~
+      pathPrefix("static/") {
+        get {
+          getFromResourceDirectory("static")
         }
       }
-    } ~
-    path("") {
-      get {
-        getFromResource("static/index.html")
-      }
-    } ~
-    pathPrefix("static/") {
-      get {
-        getFromResourceDirectory("static")
-      }
-    }
 }
 
 

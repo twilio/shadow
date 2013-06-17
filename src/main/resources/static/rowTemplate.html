@@ -2,6 +2,12 @@
      ng-class="renderedColumns[0].colIndex()" class="ngCell {{renderedColumns[0].cellClass}}">
     <div>
         <span ng-cell-text> {{row.entity.index}} {{row.entity.flag}}</span>
+        <span class="label label-info" style="margin-left: 5px" ng-show="row.entity.results[0].status_code > 300">
+            {{row.entity.results[0].status_code}}
+        </span>
+        <span class="label label-inverse" style="margin-left: 5px" ng-show="row.entity.results[1].status_code > 300">
+            {{row.entity.results[1].status_code}}
+        </span>
     </div>
 </div>
 <div ng-style="{'cursor': row.cursor, 'z-index': renderedColumns[1].zIndex() }"
@@ -9,12 +15,6 @@
     <div class="ngCellText" ng-class="renderedColumns[1].colIndex()"><span ng-cell-text>
             <span>
                 {{row.entity.request.original.method}} {{row.entity.request.original.url}}
-            </span>
-            <span class="label label-info" style="margin-left: 5px" ng-show="row.entity.results[0].status_code > 300">
-                {{row.entity.results[0].status_code}}
-            </span>
-            <span class="label label-inverse" style="margin-left: 5px" ng-show="row.entity.results[1].status_code > 300">
-                {{row.entity.results[1].status_code}}
             </span>
     </span></div>
 </div>

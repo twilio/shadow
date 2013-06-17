@@ -101,7 +101,7 @@ class ProxySuite extends FunSpec with SpanSugar with ShouldMatchers with BeforeA
   def withProxyAndStubs(doTest: (StubServer, StubServer, Int, ActorRef, ActorSystem) => Any) {
     withBothServers { (trueServer, truePort, shadowServer, shadowPort) =>
       new EverythingFixture {
-        val shadowConfig = ShadowConfig("localhost", truePort, "localhost", shadowPort)
+        val shadowConfig = ShadowConfig(ShadowServerConfig("localhost", truePort, Map(), Map()), ShadowServerConfig("localhost", shadowPort, Map(), Map()), "logs/")
 
         val proxy = system.actorOf(Props(new ProxyActor(httpClient, metricsRegistry, shadowConfig)))
 

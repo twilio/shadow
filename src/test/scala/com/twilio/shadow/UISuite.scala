@@ -27,7 +27,7 @@ class UISuite extends FunSpec with ShouldMatchers {
     it("should correctly serialize a shadowEntry") {
       import org.json4s.native.JsonMethods._
 
-      compact(render(JsonUtil.shadowEntryJson(shadowEntry))) should be (shadowJson)
+      compact(render(shadowEntry.json)) should be (shadowJson)
     }
   }
 }
