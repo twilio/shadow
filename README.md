@@ -24,7 +24,6 @@ This generates an assembled Jar with all dependencies in `/target/shadow-assembl
 
 ## Installing
 
-<<<<<<< HEAD
 No escalated privledges needed unless you are using privileged ports. Just copy the Jar built in the previous step on to your existing server.
 
 ## Configuring
@@ -34,49 +33,59 @@ Make a copy of the example configuration `application.conf.example` and change t
 
 ## Shadow specific configuration
 
+	akka {
+	  loglevel = INFO
+	}
+	
+	shadow {
+	    version = "0.1-SNAPSHOT"
+	
+	    proxy-host = localhost
+	    proxy-port = 8000
+	
+	    ui-host = localhost
+	    ui-port = 8081
+	
+	    results-log = "logs/results.log"
+	
+	    trueServer {
+	
+	        host = "httpbin.org"
+	        port = 80
+	
+	        query-param-overrides {
+	        }
+	
+	        form-param-overrides {
+	        }
+	
+	    }
+	
+	    shadowServer {
+	
+	        host = "httpbin.org"
+	        port = 80
+	
+	        query-param-overrides {
+	            test = ["hello"]
+	        }
+	
+	        form-param-overrides {
+	            test2 = ["world"]
+	        }
+	
+	    }
+	}
 
-```
-akka {
-  loglevel = INFO
-}
-
-shadow {
-  version = "0.1-SNAPSHOT"
-
-  # host and port to listen to incoming requests
-  proxy-host = localhost
-  proxy-port = 8000
-
-  # host and port for the ui
-  ui-host = localhost
-  ui-port = 8081
-
-  # host and port of the service we are transitioning from
-  # shadow returns responses from this host
-  trueServer {
-    host = "httpbin.org"
-    port = 80
-  }
-
-  # host and port of the service we are transitioning to
-  shadowServer {
-    host = "httpbin.org"
-    port = 80
-  }
-}
-
-spray.can.server {
-  server-header = shadow-server/${shadow.version}
-
-  # max request timeout
-  request-timeout = 15s
-  stats-support = true
-}
-
-spray.can.client {
-    user-agent-header = shadow/${shadow.version}
-}
-```
+	spray.can.server {
+	  server-header = shadow-server/${shadow.version}
+	  request-timeout = 15s
+	  stats-support = true
+	}
+	
+	spray.can.client {
+	    user-agent-header = shadow/${shadow.version}
+	}
 	
 ## Running
 
@@ -102,106 +111,4 @@ To run them, use: `sbt test`
 * [Scala](http://www.scala.org)
 * [Spray](http://www.spray.io)
 * [Akka](http://www.akka.io)
-=======
-No escalated privledges needed unless you are using privileged ports. 
 
-### From Source
-
-Just copy the Jar built in the build step on to your existing server.
-
-Run `java -jar -Dconfig.file=application.conf shadow-assembly-<VERSION>.jar`
-
-## From RPM
-
-Running `yum install kelvin.shadow.scala` should install the latest version of shadow in `/mnt/services/shadow`
-
-`cd /mnt/services/shadow`
-
-Run `java -jar -Dconfig.file=application.conf bin/shadow-<version>.jar`
-
->>>>>>> ea987f2... Adding readme and example configuration
-
-## Configuring
-
-Make a copy of the example configuration `application.conf.example` and change the settings to fit your environment.
-
-
-## Shadow specific configuration
-
-
-```
-akka {
-  loglevel = INFO
-}
-
-shadow {
-    version = "0.1-SNAPSHOT"
-
-    proxy-host = localhost
-    proxy-port = 8000
-
-    ui-host = localhost
-    ui-port = 8081
-
-    results-log = "logs/results.log"
-
-    trueServer {
-
-        host = "httpbin.org"
-        port = 80
-
-        query-param-overrides {
-        }
-
-        form-param-overrides {
-        }
-
-    }
-
-    shadowServer {
-
-        host = "httpbin.org"
-        port = 80
-
-        query-param-overrides {
-            test = ["hello"]
-        }
-
-        form-param-overrides {
-            test2 = ["world"]
-        }
-
-    }
-}
-
-spray.can.server {
-  server-header = shadow-server/${shadow.version}
-  request-timeout = 15s
-  stats-support = true
-}
-
-spray.can.client {
-    user-agent-header = shadow/${shadow.version}
-}```
-	
-## Running
-
-Running `java -jar -Dconfig.file=application.conf shadow-assembly-<VERSION>.jar` will start the server in the foreground. 
-
-We recommend using a supervisor such as `jsvc` or `runit` to manage running shadow
-
-Be default, the UI can be accessed at [http://localhost:8081](http://localhost:8081)
-
-## Testing
-
-Tests are found under `src/main/test/scala/`
-
-To run them, use: `sbt test`
-
-## Based upon
-
-* [AngularJS](http://angularjs.org/)
-* [jsdiff](https://github.com/kpdecker/jsdiff)
-* [Scala](http://www.scala.org)
-* [Spray](http://www.spray.io)
-* [Akka](http://www.akka.io)
