@@ -17,11 +17,11 @@ setup(name='shadow',
         'https://github.com/progrium/ginkgo/tarball/master#egg=ginkgo-0.5.0dev'
       ],
       install_requires=[
-        'Cython==0.17.1',
         'gevent==1.0dev',
         'ginkgo==0.5.0dev',
         'flask==0.9',
         'requests==0.13.6',
         'gevent-socketio==0.3.5-rc2',
+        'Cython==0.17.1',
       ]
 )
