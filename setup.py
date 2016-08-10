@@ -23,5 +23,6 @@ setup(name='shadow',
         'flask==0.9',
         'requests==0.13.6',
         'gevent-socketio==0.3.5-rc2',
+        'biplist==0.5',
       ]
 )
