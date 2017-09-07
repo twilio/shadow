@@ -1,7 +1,7 @@
 
-#Shadow Proxy
+# Shadow Proxy
 
-##Introduction
+## Introduction
 
 Shadow is a HTTP debugging proxy that sits in front of an existing service and a service with new code changes. It copies and directs incoming requests to both downstream services and compares the responses from those services.
 
